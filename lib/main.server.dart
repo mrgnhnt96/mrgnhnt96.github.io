@@ -32,6 +32,12 @@ void main() {
           'Personal site of Morgan Hunt, a Staff Software Engineer building tools for the Dart & Flutter ecosystem.',
       'theme-color': '#07080c',
     },
+    head: [
+      link(rel: 'icon', href: '/favicon.ico', type: 'image/x-icon'),
+      link(rel: 'icon', href: '/favicon-32x32.png', type: 'image/png', attributes: {'sizes': '32x32'}),
+      link(rel: 'icon', href: '/favicon-16x16.png', type: 'image/png', attributes: {'sizes': '16x16'}),
+      link(rel: 'apple-touch-icon', href: '/apple-touch-icon.png', attributes: {'sizes': '180x180'}),
+    ],
     styles: [
       css.import('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap'),
       css('html, body').styles(
