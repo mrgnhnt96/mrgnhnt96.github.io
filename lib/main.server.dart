@@ -37,6 +37,29 @@ void main() {
       link(rel: 'icon', href: '/favicon-32x32.png', type: 'image/png', attributes: {'sizes': '32x32'}),
       link(rel: 'icon', href: '/favicon-16x16.png', type: 'image/png', attributes: {'sizes': '16x16'}),
       link(rel: 'apple-touch-icon', href: '/apple-touch-icon.png', attributes: {'sizes': '180x180'}),
+
+      // Open Graph / Twitter card — controls how link previews render in
+      // Messages, Slack, social apps, etc. Without og:image, previews fall
+      // back to a bare title + tiny favicon.
+      meta(attributes: {'property': 'og:type'}, content: 'website'),
+      meta(attributes: {'property': 'og:url'}, content: 'https://mrgnhnt.com/'),
+      meta(attributes: {'property': 'og:site_name'}, content: 'Morgan Hunt'),
+      meta(attributes: {'property': 'og:title'}, content: 'Morgan Hunt — Staff Software Engineer'),
+      meta(
+        attributes: {'property': 'og:description'},
+        content: "Building the Dart ecosystem's missing tools — one framework at a time.",
+      ),
+      meta(attributes: {'property': 'og:image'}, content: 'https://mrgnhnt.com/og-image.png'),
+      meta(attributes: {'property': 'og:image:width'}, content: '1200'),
+      meta(attributes: {'property': 'og:image:height'}, content: '630'),
+      meta(attributes: {'property': 'og:image:alt'}, content: 'Morgan Hunt — Staff Software Engineer'),
+      meta(attributes: {'name': 'twitter:card'}, content: 'summary_large_image'),
+      meta(attributes: {'name': 'twitter:title'}, content: 'Morgan Hunt — Staff Software Engineer'),
+      meta(
+        attributes: {'name': 'twitter:description'},
+        content: "Building the Dart ecosystem's missing tools — one framework at a time.",
+      ),
+      meta(attributes: {'name': 'twitter:image'}, content: 'https://mrgnhnt.com/og-image.png'),
     ],
     styles: [
       css.import('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap'),
