@@ -43,7 +43,9 @@ class HomeState extends State<Home> {
       css('&').styles(
         display: .flex,
         position: .relative(),
-        minHeight: 100.vh,
+        // dvh so the page doesn't reflow as mobile browser chrome
+        // collapses/expands on scroll.
+        minHeight: Unit.expression('100dvh'),
         padding: .symmetric(vertical: 2.rem, horizontal: 1.rem),
         boxSizing: .borderBox,
         justifyContent: .center,

@@ -54,7 +54,10 @@ class TerminalShellState extends State<TerminalShell> {
   void initState() {
     super.initState();
     _seedBoot();
-    if (kIsWeb) {
+    // Skip autofocus on touch devices — popping the keyboard the instant the
+    // page loads eats half the screen before anyone's read the boot lines.
+    // Desktop keeps the instant-typing feel; touch users tap in when ready.
+    if (kIsWeb && !web.window.matchMedia('(pointer: coarse)').matches) {
       Future.microtask(() => _inputKey.currentNode?.focus());
     }
   }
@@ -158,7 +161,16 @@ class TerminalShellState extends State<TerminalShell> {
   }
 
   void _focusInput(web.Event event) {
-    if (kIsWeb) _inputKey.currentNode?.focus();
+    if (!kIsWeb) return;
+    // Don't steal focus while the user is selecting/copying output text —
+    // on mobile that would pop the keyboard and collapse the selection
+    // right as they finish a long-press-drag.
+    if (web.window.getSelection()?.isCollapsed == false) return;
+    _inputKey.currentNode?.focus();
+  }
+
+  void _acceptSuggestion() {
+    if (_suggestion case final suggestion?) setState(() => _draft = suggestion);
   }
 
   @override
@@ -188,7 +200,11 @@ class TerminalShellState extends State<TerminalShell> {
             },
           ),
           if (_suggestion case final suggestion?)
-            span(classes: 'terminal__suggestion', [.text('${suggestion.substring(_draft.length)} ⇥')]),
+            span(
+              classes: 'terminal__suggestion',
+              events: {'click': (_) => _acceptSuggestion()},
+              [.text('${suggestion.substring(_draft.length)} ⇥')],
+            ),
         ]),
       ]),
     ]);
@@ -200,7 +216,9 @@ class TerminalShellState extends State<TerminalShell> {
       css('&').styles(
         width: 100.percent,
         maxWidth: 720.px,
-        maxHeight: 78.vh,
+        // dvh (not vh) so the panel doesn't resize as mobile browser chrome
+        // collapses/expands on scroll.
+        maxHeight: Unit.expression('78dvh'),
         padding: .zero,
         boxSizing: .borderBox,
         border: .all(color: borderSubtle, width: 1.px),
@@ -229,7 +247,7 @@ class TerminalShellState extends State<TerminalShell> {
       css('&__title').styles(color: textDim, fontSize: 0.8.rem),
       css('&__body').styles(
         display: .flex,
-        maxHeight: 60.vh,
+        maxHeight: Unit.expression('60dvh'),
         padding: .all(1.25.rem),
         overflow: .only(y: .auto),
         flexDirection: .column,
@@ -253,7 +271,7 @@ class TerminalShellState extends State<TerminalShell> {
         ),
       ]),
       css('&__suggestion').styles(
-        pointerEvents: .none,
+        cursor: .pointer,
         color: textDim,
         fontFamily: fontStack,
         fontSize: 0.92.rem,
@@ -297,8 +315,13 @@ class TerminalShellState extends State<TerminalShell> {
       css('& > span:first-child').styles(minWidth: 6.rem),
     ]),
     css.media(MediaQuery.screen(maxWidth: 640.px), [
-      css('.terminal').styles(maxHeight: 82.vh, radius: .all(.circular(0.px))),
+      css('.terminal').styles(maxHeight: Unit.expression('82dvh'), radius: .all(.circular(0.px))),
       css('.terminal__body').styles(padding: .all(0.9.rem), fontSize: 0.85.rem),
+      // Inputs under 16px trigger an automatic zoom-in on focus in iOS
+      // Safari — keep these at 16px so tapping the prompt doesn't yank the
+      // whole page's zoom level.
+      css('.terminal__input').styles(fontSize: 1.rem),
+      css('.terminal__suggestion').styles(fontSize: 1.rem),
     ]),
   ];
 }
