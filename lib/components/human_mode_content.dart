@@ -31,6 +31,7 @@ class HumanModeContent extends StatelessComponent {
         div(classes: 'resume__links', [
           a(href: Profile.github, target: .blank, [.text('GitHub')]),
           a(href: Profile.linkedin, target: .blank, [.text('LinkedIn')]),
+          a(href: Profile.twitter, target: .blank, [.text('Twitter')]),
           a(href: 'mailto:${Profile.email}', [.text('Email')]),
           a(href: '/resume.pdf', download: 'Morgan-Hunt-Resume.pdf', [.text('Résumé (PDF)')]),
         ]),
@@ -87,7 +88,9 @@ class HumanModeContent extends StatelessComponent {
           a(href: 'mailto:${Profile.email}', [.text(Profile.email)]),
           .text(', or find me as '),
           a(href: Profile.github, target: .blank, [.text('@${Profile.githubHandle}')]),
-          .text(' pretty much everywhere.'),
+          .text(' on GitHub or '),
+          a(href: Profile.twitter, target: .blank, [.text('@${Profile.twitterHandle}')]),
+          .text(' on Twitter.'),
         ]),
       ]),
     ]);

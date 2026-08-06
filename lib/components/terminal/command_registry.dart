@@ -56,7 +56,10 @@ List<Component> _whoamiOutput(List<String> args, TerminalActions actions) => [
   _muted("Type 'about', 'experience', or 'ls projects' to dig in."),
 ];
 
-List<Component> _aboutOutput(List<String> args, TerminalActions actions) => [_line(Profile.summary)];
+List<Component> _aboutOutput(List<String> args, TerminalActions actions) => [
+  _line(Profile.summary),
+  _muted("Next: 'experience' for the work history, or 'ls projects' for what I've built."),
+];
 
 List<Component> _experienceOutput(List<String> args, TerminalActions actions) => [
   for (final job in experience)
@@ -65,6 +68,7 @@ List<Component> _experienceOutput(List<String> args, TerminalActions actions) =>
       _muted(job.period),
       ul(classes: 'term-list', [for (final bullet in job.bullets) li([.text(bullet)])]),
     ]),
+  _muted("See 'ls projects' for things I've built on the side, or 'contact' to reach out."),
 ];
 
 List<Component> _lsOutput(List<String> args, TerminalActions actions) {
@@ -89,6 +93,12 @@ List<Component> _lsOutput(List<String> args, TerminalActions actions) {
   }
 
   final entries = projectsByCategory(categories.first);
+  final hint = switch (category) {
+    'projects' => "Try 'cat resume' for the short version, or 'contact' to reach out.",
+    'tools' => "Back to 'ls projects' for the bigger stuff, or 'contact' to reach out.",
+    'games' => "Yes, I have a problem. Try 'ls projects' for the serious stuff.",
+    _ => "Try 'contact' to reach out.",
+  };
   return [
     for (final entry in entries)
       div(classes: 'term-ls-row', [
@@ -96,6 +106,7 @@ List<Component> _lsOutput(List<String> args, TerminalActions actions) {
         span(classes: 'term-muted', [.text(entry.description)]),
         if (entry.stars != null) span(classes: 'term-accent-amber', [.text('★ ${entry.stars}')]),
       ]),
+    _muted(hint),
   ];
 }
 
@@ -128,6 +139,11 @@ List<Component> _contactOutput(List<String> args, TerminalActions actions) => [
     span(classes: 'term-muted', [.text('linkedin')]),
     _link(Profile.linkedin, 'in/mrgnhnt'),
   ]),
+  div(classes: 'term-ls-row', [
+    span(classes: 'term-muted', [.text('twitter')]),
+    _link(Profile.twitter, '@${Profile.twitterHandle}'),
+  ]),
+  _muted("Or just poke around — 'ls projects', 'experience', 'help'."),
 ];
 
 List<Component> _sudoOutput(List<String> args, TerminalActions actions) {

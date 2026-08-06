@@ -29,8 +29,9 @@ const experience = <ExperienceEntry>[
     role: 'Senior Software Engineer',
     period: 'Jan 2020 — Jul 2023',
     bullets: [
-      'Primary Flutter engineer for a large-scale meal-planning application.',
-      'Partnered with product and design to ship high-quality features across iOS and Android.',
+      'Served as the primary Flutter engineer for a large-scale meal-planning application, building and maintaining core mobile features.',
+      'Partnered with product, design, and leadership teams to deliver high-quality user experiences and support business objectives.',
+      'Helped coordinate cross-functional teams and drive successful releases across iOS and Android.',
     ],
   ),
 ];

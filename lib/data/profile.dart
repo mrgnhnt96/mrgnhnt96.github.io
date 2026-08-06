@@ -13,6 +13,8 @@ abstract final class Profile {
   static const github = 'https://github.com/mrgnhnt96';
   static const githubHandle = 'mrgnhnt96';
   static const linkedin = 'https://www.linkedin.com/in/mrgnhnt';
+  static const twitter = 'https://x.com/mrgnhnt96_dev';
+  static const twitterHandle = 'mrgnhnt96_dev';
 }
 
 class SkillGroup {

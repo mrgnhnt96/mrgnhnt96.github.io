@@ -32,10 +32,23 @@ class TerminalShellState extends State<TerminalShell> {
   final List<_Entry> _entries = [];
   final List<String> _commandHistory = [];
   final GlobalNodeKey<web.HTMLInputElement> _inputKey = GlobalNodeKey();
+  final GlobalNodeKey<web.HTMLDivElement> _bodyKey = GlobalNodeKey();
 
   int _historyIndex = 0;
   int _nextKeyId = 0;
   String _draft = '';
+
+  /// The first command name that starts with the in-progress draft, for
+  /// type-ahead (Tab to accept). Only suggests while typing the command
+  /// itself, not once arguments have started.
+  String? get _suggestion {
+    final draft = _draft.toLowerCase();
+    if (draft.isEmpty || draft.contains(' ')) return null;
+    for (final cmd in commands) {
+      if (cmd.name != draft && cmd.name.startsWith(draft)) return cmd.name;
+    }
+    return null;
+  }
 
   @override
   void initState() {
@@ -44,6 +57,12 @@ class TerminalShellState extends State<TerminalShell> {
     if (kIsWeb) {
       Future.microtask(() => _inputKey.currentNode?.focus());
     }
+  }
+
+  void _scrollToBottom() {
+    if (!kIsWeb) return;
+    final node = _bodyKey.currentNode;
+    if (node != null) node.scrollTop = node.scrollHeight;
   }
 
   void _seedBoot() {
@@ -94,6 +113,7 @@ class TerminalShellState extends State<TerminalShell> {
         _append(outputs[i], (i + 1) * 45);
       }
     });
+    context.binding.addPostFrameCallback(_scrollToBottom);
   }
 
   void _historyUp() {
@@ -127,6 +147,13 @@ class TerminalShellState extends State<TerminalShell> {
         e.preventDefault();
         _historyDown();
         break;
+      case 'Tab':
+        final suggestion = _suggestion;
+        if (suggestion != null) {
+          e.preventDefault();
+          setState(() => _draft = suggestion);
+        }
+        break;
     }
   }
 
@@ -141,7 +168,7 @@ class TerminalShellState extends State<TerminalShell> {
         div(classes: 'terminal__dots', [span([]), span([]), span([])]),
         span(classes: 'terminal__title', [.text('morgan@personal — zsh')]),
       ]),
-      div(classes: 'terminal__body', [
+      div(key: _bodyKey, classes: 'terminal__body', [
         for (final entry in _entries)
           OutputLine(key: ValueKey(entry.keyId), delayMs: entry.delayMs, child: entry.content),
         div(classes: 'terminal__prompt-row', [
@@ -160,6 +187,8 @@ class TerminalShellState extends State<TerminalShell> {
               'aria-label': 'terminal input',
             },
           ),
+          if (_suggestion case final suggestion?)
+            span(classes: 'terminal__suggestion', [.text('${suggestion.substring(_draft.length)} ⇥')]),
         ]),
       ]),
     ]);
@@ -223,6 +252,13 @@ class TerminalShellState extends State<TerminalShell> {
           raw: {'outline': 'none', 'caret-color': '#5eead4'},
         ),
       ]),
+      css('&__suggestion').styles(
+        pointerEvents: .none,
+        color: textDim,
+        fontFamily: fontStack,
+        fontSize: 0.92.rem,
+        whiteSpace: .noWrap,
+      ),
     ]),
     // Output typography, shared by command_registry.dart output builders.
     css('.term-line').styles(raw: {'overflow-wrap': 'break-word'}),
@@ -235,6 +271,7 @@ class TerminalShellState extends State<TerminalShell> {
     css('.term-error').styles(margin: .zero, color: accentDanger),
     css('.term-link', [
       css('&').styles(
+        cursor: .pointer,
         color: accentCyan,
         textDecoration: TextDecoration(line: .underline, color: .rgba(94, 234, 212, 0.35)),
       ),
