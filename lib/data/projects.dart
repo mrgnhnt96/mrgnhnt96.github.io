@@ -29,7 +29,9 @@ class ProjectEntry {
 const projects = <ProjectEntry>[
   ProjectEntry(
     name: 'revali',
-    description: 'A Dart backend framework inspired by NestJS — decorators, DI, and structure for building APIs.',
+    description:
+        'A Dart backend framework inspired by NestJS — decorators, DI, and structure for building APIs. '
+        '(Yes, named after the Zelda champion.)',
     category: ProjectCategory.flagship,
     url: 'https://revali.dev',
     stars: 9,
@@ -37,7 +39,8 @@ const projects = <ProjectEntry>[
   ProjectEntry(
     name: 'zonai',
     description:
-        'Batteries-included Dart backend framework — auth, database, live query streams, file storage, cron. (Pending release)',
+        'Batteries-included Dart backend framework — auth, database, live query streams, file storage, cron. '
+        "Named after Tears of the Kingdom's ancient civilization. (Pending release)",
     category: ProjectCategory.flagship,
     url: 'https://github.com/mrgnhnt96/zonai',
   ),

@@ -5,9 +5,24 @@ abstract final class Profile {
   static const location = 'Mesa, AZ';
   static const tagline = 'Building the Dart ecosystem\'s missing tools — one framework at a time.';
   static const summary =
-      'Senior software engineer with 8+ years building high-quality mobile apps, developer '
+      'Staff software engineer with 8+ years building high-quality mobile apps, developer '
       'tools, and backend systems. Specialized in Flutter and Dart, with a focus on '
-      'performance, developer experience, and clean architecture.';
+      'performance, developer experience, and clean architecture. Most of what I build outside '
+      'the day job exists because some corner of the Dart ecosystem was missing it — monorepo '
+      'tooling, git hooks, a backend framework, a pile of code generators. If a tool gets in a '
+      "developer's way, I'd rather fix the tool than work around it.";
+
+  static const howIWork =
+      'At Couchsurfing I lead and mentor a team of 9, but the instinct is the same at any '
+      'scale: remove friction before adding process. I like small, sharp tools that compose — '
+      'a CLI that does one thing well, a codegen step that kills a whole class of bugs, a git '
+      "hook that catches a mistake before it ships. If I can automate the boring part, everyone "
+      'gets more time for the interesting part.';
+
+  static const zeldaFact =
+      "Ocarina of Time was the first game I ever beat, and I've been playing Zelda ever since — "
+      "Revali and Zonai are both named after Zelda lore, if that wasn't obvious. Current "
+      'favorite: Tears of the Kingdom.';
 
   static const email = 'mrgnhnt96@gmail.com';
   static const github = 'https://github.com/mrgnhnt96';

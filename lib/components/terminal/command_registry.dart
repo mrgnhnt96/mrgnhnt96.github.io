@@ -58,7 +58,12 @@ List<Component> _whoamiOutput(List<String> args, TerminalActions actions) => [
 
 List<Component> _aboutOutput(List<String> args, TerminalActions actions) => [
   _line(Profile.summary),
-  _muted("Next: 'experience' for the work history, or 'ls projects' for what I've built."),
+  _line(Profile.howIWork),
+  _muted("Next: 'experience' for the work history, 'ls projects' for what I've built, or 'zelda' for a fact."),
+];
+
+List<Component> _zeldaOutput(List<String> args, TerminalActions actions) => [
+  p(classes: 'term-accent', [.text(Profile.zeldaFact)]),
 ];
 
 List<Component> _experienceOutput(List<String> args, TerminalActions actions) => [
@@ -179,6 +184,7 @@ final commands = <Command>[
     },
   ),
   Command(name: 'sudo', description: 'try it', handler: _sudoOutput),
+  Command(name: 'zelda', description: "you'll see", handler: _zeldaOutput),
 ];
 
 Command? findCommand(String name) {

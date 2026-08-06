@@ -41,6 +41,10 @@ class HumanModeContent extends StatelessComponent {
         p([.text(Profile.summary)]),
       ]),
       section(classes: 'resume__section', [
+        h2([.text('// how I work')]),
+        p([.text(Profile.howIWork)]),
+      ]),
+      section(classes: 'resume__section', [
         h2([.text('// experience')]),
         div(classes: 'resume__cards', [
           for (final job in experience)
