@@ -187,7 +187,7 @@ List<Component> _contactOutput(List<String> args, TerminalActions actions) => [
   ]),
   div(classes: 'term-ls-row', [
     span(classes: 'term-muted', [.text('linkedin')]),
-    _link(Profile.linkedin, 'in/mrgnhnt'),
+    _link(Profile.linkedin, 'in/mrgnhnt96'),
   ]),
   div(classes: 'term-ls-row', [
     span(classes: 'term-muted', [.text('twitter')]),
