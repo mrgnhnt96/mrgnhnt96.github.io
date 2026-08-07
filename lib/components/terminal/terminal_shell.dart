@@ -39,6 +39,10 @@ class TerminalShellState extends State<TerminalShell> {
   String _draft = '';
   bool _autoTyping = false;
 
+  /// Set by the `jokes` command — a bare Enter press reveals it as the next
+  /// output line instead of doing nothing.
+  String? _pendingPunchline;
+
   /// The first command name that starts with the in-progress draft, for
   /// type-ahead (Tab to accept). Only suggests while typing the command
   /// itself, not once arguments have started.
@@ -69,12 +73,16 @@ class TerminalShellState extends State<TerminalShell> {
     if (node != null) node.scrollTop = node.scrollHeight;
   }
 
+  TerminalActions _buildActions() => TerminalActions(
+    clear: () => setState(_entries.clear),
+    setMode: component.onModeChange,
+    runCommand: _runTapped,
+    openUrl: (url) => web.window.open(url, '_blank'),
+    queuePunchline: (punchline) => setState(() => _pendingPunchline = punchline),
+  );
+
   void _seedBoot() {
-    final actions = TerminalActions(
-      clear: () => setState(_entries.clear),
-      setMode: component.onModeChange,
-      runCommand: _runTapped,
-    );
+    final actions = _buildActions();
     final lines = [
       p(classes: 'term-boot', [.text('Morgan Hunt — Staff Software Engineer')]),
       p(classes: 'term-boot', [.text('Dart & Flutter ecosystem tooling · Mesa, AZ')]),
@@ -97,7 +105,17 @@ class TerminalShellState extends State<TerminalShell> {
   void _submit() {
     final trimmed = _draft.trim();
     setState(() => _draft = '');
-    if (trimmed.isEmpty) return;
+    if (trimmed.isEmpty) {
+      if (_pendingPunchline case final punchline?) {
+        setState(() {
+          _pendingPunchline = null;
+          _append(punchlineOutput(punchline), 0);
+        });
+        context.binding.addPostFrameCallback(_scrollToBottom);
+      }
+      return;
+    }
+    _pendingPunchline = null;
 
     _commandHistory.add(trimmed);
     _historyIndex = _commandHistory.length;
@@ -112,12 +130,10 @@ class TerminalShellState extends State<TerminalShell> {
     final name = tokens.first.toLowerCase();
     final args = tokens.skip(1).toList();
     final cmd = findCommand(name);
-    final actions = TerminalActions(
-      clear: () => setState(_entries.clear),
-      setMode: component.onModeChange,
-      runCommand: _runTapped,
-    );
-    final outputs = cmd != null ? cmd.handler(args, actions) : notFoundOutput(name, actions);
+    final actions = _buildActions();
+    final outputs = cmd != null
+        ? cmd.handler(args, actions)
+        : tryEasterEgg(name, args, actions) ?? notFoundOutput(name, actions);
 
     setState(() {
       _append(_echo(trimmed), 0);

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
@@ -5,11 +7,21 @@ import '../../data/experience.dart';
 import '../../data/profile.dart';
 import '../../data/projects.dart';
 
+final _random = Random();
+
+T _pick<T>(List<T> options) => options[_random.nextInt(options.length)];
+
 enum TerminalMode { terminal, human }
 
 /// Side effects a command handler can trigger on the shell itself.
 class TerminalActions {
-  const TerminalActions({required this.clear, required this.setMode, required this.runCommand});
+  const TerminalActions({
+    required this.clear,
+    required this.setMode,
+    required this.runCommand,
+    required this.openUrl,
+    required this.queuePunchline,
+  });
 
   final void Function() clear;
   final void Function(TerminalMode mode) setMode;
@@ -17,7 +29,16 @@ class TerminalActions {
   /// Types out and submits [command] as if the user had entered it — used
   /// to make command names in output (e.g. `help`) tappable.
   final void Function(String command) runCommand;
+
+  /// Opens [url] in a new tab — used by the `open` command.
+  final void Function(String url) openUrl;
+
+  /// Holds [punchline] until the next bare Enter press reveals it — used by
+  /// the `jokes` command's setup/punchline delivery.
+  final void Function(String punchline) queuePunchline;
 }
+
+Component punchlineOutput(String text) => p(classes: 'term-accent', [.text(text)]);
 
 typedef CommandHandler = List<Component> Function(List<String> args, TerminalActions actions);
 
@@ -37,7 +58,7 @@ Component _line(String text) => p([.text(text)]);
 Component _link(String href, String label) => a(href: href, target: .blank, classes: 'term-link', [.text(label)]);
 Component _error(String text) => p(classes: 'term-error', [.text(text)]);
 
-Component _runnableLink(String name, TerminalActions actions) => span(
+Component _runnableLink(String label, TerminalActions actions, {String? runs}) => span(
   classes: 'term-link',
   events: {
     // Stop this from bubbling to '.terminal's click handler, which focuses
@@ -46,10 +67,10 @@ Component _runnableLink(String name, TerminalActions actions) => span(
     // up) is exactly what shouldn't happen here.
     'click': (e) {
       e.stopPropagation();
-      actions.runCommand(name);
+      actions.runCommand(runs ?? label);
     },
   },
-  [.text(name)],
+  [.text(label)],
 );
 
 // The negative lookbehind keeps this from treating a contraction's
@@ -104,11 +125,23 @@ List<Component> _whoamiOutput(List<String> args, TerminalActions actions) => [
 List<Component> _aboutOutput(List<String> args, TerminalActions actions) => [
   _line(Profile.summary),
   _line(Profile.howIWork),
-  _mutedHint("Next: 'experience' for the work history, 'ls projects' for what I've built, or 'zelda' for a fact.", actions),
+  _mutedHint("Next: 'experience' for the work history, 'ls projects' for what I've built, or 'gaming' for a tangent.", actions),
 ];
 
-List<Component> _zeldaOutput(List<String> args, TerminalActions actions) => [
-  p(classes: 'term-accent', [.text(Profile.zeldaFact)]),
+const _gamingLines = [
+  Profile.zeldaFact,
+  "Two of my projects are secretly named after Zelda lore. See if you can spot it in 'ls projects'.",
+  'Ocarina of Time broke my brain as a kid, in the best way. Never really recovered.',
+  "High score: most Korok seeds collected before I remembered Hyrule has a main story too.",
+  'Ask me about Tears of the Kingdom sometime. I have opinions and very little restraint.',
+  "Breath of the Wild is the reason 'just one more shrine' has never once been true.",
+  "Majora's Mask is criminally underrated. Fight me.",
+  "I've named two backend frameworks after Zelda lore. A therapist might have thoughts.",
+  "If Hyrule had a monorepo, I'd already be refactoring it.",
+];
+
+List<Component> _gamingOutput(List<String> args, TerminalActions actions) => [
+  p(classes: 'term-accent', [.text(_pick(_gamingLines))]),
 ];
 
 List<Component> _experienceOutput(List<String> args, TerminalActions actions) => [
@@ -121,8 +154,19 @@ List<Component> _experienceOutput(List<String> args, TerminalActions actions) =>
   _mutedHint("See 'ls projects' for things I've built on the side, or 'contact' to reach out.", actions),
 ];
 
+const _lsFlagJokes = [
+  "ls: -a shows hidden files, but the only thing hidden here is my sense of shame about early CSS.",
+  "ls: nice try — the only dotfile here is .gitignore, and it's not talking.",
+  'ls: hidden files revealed: .fears .imposter_syndrome .that_bug_from_2019',
+  "ls: -a isn't supported, but respect for reaching for the real flags.",
+  "ls: there's nothing hidden — I put all my secrets in 'about'.",
+];
+
 List<Component> _lsOutput(List<String> args, TerminalActions actions) {
   final category = args.isEmpty ? null : args.first.toLowerCase();
+  if (category != null && category.startsWith('-')) {
+    return [_error(_pick(_lsFlagJokes))];
+  }
   final categories = switch (category) {
     'projects' => [ProjectCategory.flagship],
     'tools' => [ProjectCategory.tool],
@@ -152,7 +196,10 @@ List<Component> _lsOutput(List<String> args, TerminalActions actions) {
   return [
     for (final entry in entries)
       div(classes: 'term-ls-row', [
-        span(classes: 'term-link', [.text('${entry.name}/')]),
+        if (entry.link != null)
+          _runnableLink('${entry.name}/', actions, runs: 'open ${entry.name}')
+        else
+          span(classes: 'term-muted', [.text('${entry.name}/')]),
         span(classes: 'term-muted', [.text(entry.description)]),
         if (entry.stars != null) span(classes: 'term-accent-amber', [.text('★ ${entry.stars}')]),
       ]),
@@ -167,13 +214,36 @@ List<Component> _catOutput(List<String> args, TerminalActions actions) {
       _line(Profile.summary),
       div(classes: 'term-block', [
         a(href: '/resume.pdf', download: 'Morgan-Hunt-Resume.pdf', classes: 'term-link', [
-          .text('⭳ download resume.pdf'),
+          .text('↓ download resume.pdf'),
         ]),
       ]),
       _mutedHint("or type 'human' to read it as a normal page.", actions),
     ];
   }
   return [_errorHint("cat: $target: no such file — try 'cat resume'", actions)];
+}
+
+List<Component> _openOutput(List<String> args, TerminalActions actions) {
+  if (args.isEmpty) {
+    return [_errorHint("open: missing project name — try 'ls projects' first.", actions)];
+  }
+  final name = args.first.toLowerCase();
+  ProjectEntry? entry;
+  for (final p in projects) {
+    if (p.name == name) {
+      entry = p;
+      break;
+    }
+  }
+  if (entry == null) {
+    return [_errorHint("open: $name: no such project — try 'ls projects', 'ls tools', or 'ls games'.", actions)];
+  }
+  final link = entry.link;
+  if (link == null) {
+    return [_muted("open: $name has no public repo yet — it's still under wraps.")];
+  }
+  actions.openUrl(link);
+  return [_muted('Opening $link in a new tab…')];
 }
 
 List<Component> _contactOutput(List<String> args, TerminalActions actions) => [
@@ -196,11 +266,200 @@ List<Component> _contactOutput(List<String> args, TerminalActions actions) => [
   _mutedHint("Or just poke around — 'ls projects', 'experience', 'help'.", actions),
 ];
 
+class _Joke {
+  const _Joke(this.setup, this.punchline);
+
+  final String setup;
+  final String punchline;
+}
+
+const _dadJokes = <_Joke>[
+  _Joke('Why do programmers prefer dark mode?', 'Because light attracts bugs.'),
+  _Joke('Why do Java developers wear glasses?', "Because they don't C#."),
+  _Joke(
+    'There are 10 types of people in this world.',
+    "Those who understand binary, and those who don't.",
+  ),
+  _Joke('Why did the developer go broke?', 'He used up all his cache.'),
+  _Joke('A SQL query walks into a bar and sees two tables.', 'Can I join you?'),
+  _Joke('Why was the JavaScript developer sad?', "He didn't Node how to Express himself."),
+  _Joke('Want to hear a UDP joke?', "Never mind, you might not get it."),
+  _Joke("Why is `!false` funny?", "Because it's true."),
+  _Joke("Why don't skeletons fight each other?", "They don't have the guts."),
+  _Joke("I'm reading a book about anti-gravity.", "It's impossible to put down."),
+  _Joke('Why did the scarecrow win an award?', 'He was outstanding in his field.'),
+  _Joke('What do you call fake spaghetti?', 'An impasta.'),
+  _Joke('I used to hate facial hair.', 'But then it grew on me.'),
+  _Joke('Why do programmers hate nature?', 'Too many bugs, not enough documentation.'),
+  _Joke('What did the router say to the doctor?', 'It hurts when IP.'),
+];
+
+List<Component> _jokesOutput(List<String> args, TerminalActions actions) {
+  final joke = _pick(_dadJokes);
+  actions.queuePunchline(joke.punchline);
+  return [
+    p(classes: 'term-accent', [.text(joke.setup)]),
+    _muted('(press enter for the punchline)'),
+  ];
+}
+
 List<Component> _sudoOutput(List<String> args, TerminalActions actions) {
   if (args.join(' ').toLowerCase() == 'make me a sandwich') {
     return [p(classes: 'term-accent', [.text('Okay.')])];
   }
   return [_error('Permission denied. (nice try, though)')];
+}
+
+enum _EggStyle { muted, error, accent }
+
+Component _styled(_EggStyle style, String text) => switch (style) {
+  _EggStyle.muted => _muted(text),
+  _EggStyle.error => _error(text),
+  _EggStyle.accent => p(classes: 'term-accent', [.text(text)]),
+};
+
+class _Egg {
+  const _Egg(this.names, this.responses, {this.style = _EggStyle.muted});
+
+  final List<String> names;
+  final List<String> responses;
+  final _EggStyle style;
+}
+
+/// Hidden joke responses for common shell muscle-memory — deliberately not
+/// registered in [commands], so they never show up in `help` or tab
+/// completion. Each one picks a random line from its pool so retyping the
+/// same command doesn't feel like hitting the same wall twice.
+final _easterEggs = <_Egg>[
+  _Egg(['grep'], [
+    "grep: no haystack, no needle — this whole site fits on one page.",
+    "grep: 0 matches for 'attention span'. try 'help' instead.",
+    "grep: this terminal doesn't have a filesystem, just vibes.",
+    'grep: I use ctrl+F like everyone else.',
+    'grep: pattern not found — much like a clean regex on the first try.',
+  ]),
+  _Egg(['touch'], [
+    "touch: cannot create file — there's no filesystem, just this conversation.",
+    "touch: permission denied. some things are better left un-touch'd.",
+    'touch grass: now THAT command I can get behind.',
+    "touch: file exists — it's called this website, and I already built it.",
+    'touch: nothing to create here, only things to read.',
+  ]),
+  _Egg(['cd'], [
+    "cd: nowhere to go — you're already exactly where you need to be.",
+    "cd: this isn't a filesystem, it's a conversation. try 'help'.",
+    "cd ..: relatable, but there's no parent directory here.",
+    "cd /: access denied, mostly because '/' doesn't exist in a browser tab.",
+    'cd: I got rid of directories years ago. ask me about monorepo tooling sometime.',
+  ]),
+  _Egg(['pwd'], [
+    'pwd: you are here. right now. reading this.',
+    "pwd: somewhere between 'curious' and 'procrastinating'.",
+    'pwd: /home/visitor/probably-should-be-working',
+    "pwd: this is a website, not a filesystem — but you're in the terminal panel, if that helps.",
+  ]),
+  _Egg(['mkdir'], [
+    'mkdir: permission denied — I already built enough folders for one lifetime.',
+    "mkdir: directory not created. this site's flat by design.",
+    "mkdir new_career: nice thought, but let's not, not today.",
+  ]),
+  _Egg(['rm'], [
+    'rm: not today. this site has feelings.',
+    "rm -rf /: absolutely not — I've seen that story end badly enough times.",
+    'rm: permission denied. everything here is load-bearing.',
+    "rm: nice try. this isn't your monorepo's node_modules.",
+    'rm -rf: I like you, but not that much.',
+  ], style: _EggStyle.error),
+  _Egg(['vim', 'nvim'], [
+    "vim: you're in. good luck getting out. (:wq, if you're new here.)",
+    "vim: opened a file that doesn't exist. classic Tuesday.",
+    "vim: entering insert mode... just kidding, there's nothing to insert.",
+    ':wq: that one you can actually type in real life. carry on.',
+  ]),
+  _Egg(['nano'], [
+    "nano: opened a file that doesn't exist, in an editor that isn't running. ctrl+x to feel something.",
+    'nano: respect for skipping the vim exit joke entirely.',
+    'nano: saved nothing, changed nothing, felt something.',
+  ]),
+  _Egg(['emacs'], [
+    'emacs: an excellent operating system, lacking only a decent terminal portfolio site.',
+    'emacs: M-x nothing-happens',
+    "emacs vs vim: not getting involved. I like my friendships intact.",
+  ]),
+  _Egg(['git'], [
+    "git status: everything's committed. nothing to see here.",
+    'git blame: it was already like this when I got here.',
+    "git log: 'fix typo' × 47",
+    'git push --force: living dangerously, I see.',
+    "git: this site doesn't need version control, just vibes and Jaspr.",
+  ]),
+  _Egg(['npm', 'yarn', 'pnpm'], [
+    'npm install: this site runs on Dart, not node_modules. no gigabytes were harmed.',
+    'npm audit: 1400 vulnerabilities found. luckily, not here.',
+    "yarn: cozy package manager, wrong ecosystem — try 'dart pub get'.",
+    'pnpm: efficient choice, wrong site.',
+  ]),
+  _Egg(['python', 'python3'], [
+    'python: wrong snake, wrong charmer. this site speaks Dart.',
+    'python3: there are two Pythons and infinite opinions about which one you meant.',
+    'import antigravity: nice reference, wrong tab.',
+  ]),
+  _Egg(['curl', 'wget'], [
+    "curl: nothing to fetch — you're already looking at the response.",
+    'curl -X GET https://this-site: 200 OK, obviously.',
+    'wget: downloading nothing, at full speed.',
+  ]),
+  _Egg(['ssh'], [
+    'ssh: connecting to production... just kidding, there is no production, this is static-rendered.',
+    "ssh: permission denied (publickey, and also this isn't a server).",
+    "ssh root@localhost: bold of you to assume I'd give you root.",
+  ], style: _EggStyle.error),
+  _Egg(['man'], [
+    "man: no manual entry for that. try 'help' — it's shorter anyway.",
+    'man: RTFM energy noted. there is no manual, just a website.',
+    "man grep: now you're just chaining jokes. I respect it.",
+  ]),
+  _Egg(['history'], [
+    "history: mostly 'help', a few typos, and one very confident 'sudo rm -rf /'.",
+    'history: you can already scroll up for this, but I respect the effort.',
+    'history | grep regret: too many matches to display.',
+  ]),
+  _Egg(['exit', 'quit', 'logout'], [
+    'exit: there is no escape. this is a single-page app.',
+    "logout: you're not logged in. you're just... here.",
+    'quit: the real exit is closing the tab, and even that feels rude.',
+    'exit: ctrl+w is right there, no judgment.',
+  ], style: _EggStyle.accent),
+  _Egg(['ps', 'top'], [
+    'ps aux: coffee.exe (running), vim (still open since 2019), motivation (sleeping)',
+    'top: CPU 2%, procrastination 98%.',
+    "ps: 1 process found — you, reading a terminal joke instead of 'ls projects'.",
+  ]),
+  _Egg(['chmod', 'chown'], [
+    'chmod 777: living dangerously. respect, but no.',
+    "chown: this isn't yours to own — but nice try.",
+    'chmod +x life: if only it worked that way.',
+  ], style: _EggStyle.error),
+  _Egg(['kill'], [
+    "kill: cannot kill process 1 — it's a metaphor, and also init.",
+    "kill -9: brutal, and also unnecessary. nothing's running.",
+    "kill: there's nothing to end here except your patience.",
+  ], style: _EggStyle.error),
+  _Egg(['reboot', 'shutdown', 'poweroff'], [
+    "shutdown: this isn't that kind of terminal — try refreshing the page.",
+    'reboot: rebooting... just kidding, everything here is already stateless.',
+    'poweroff: bold command for a static site.',
+  ], style: _EggStyle.error),
+];
+
+/// Looks up a hidden joke response for [name], picking a random line from
+/// its pool. Returns null if [name] isn't one of the easter eggs, so callers
+/// can fall back to [notFoundOutput].
+List<Component>? tryEasterEgg(String name, List<String> args, TerminalActions actions) {
+  for (final egg in _easterEggs) {
+    if (egg.names.contains(name)) return [_styled(egg.style, _pick(egg.responses))];
+  }
+  return null;
 }
 
 final commands = <Command>[
@@ -220,16 +479,10 @@ final commands = <Command>[
       return [_muted('Switching to human-readable mode…')];
     },
   ),
-  Command(
-    name: 'terminal',
-    description: 'switch back to the terminal',
-    handler: (args, actions) {
-      actions.setMode(TerminalMode.terminal);
-      return [_muted('Back to the shell.')];
-    },
-  ),
   Command(name: 'sudo', description: 'try it', handler: _sudoOutput),
-  Command(name: 'zelda', description: "you'll see", handler: _zeldaOutput),
+  Command(name: 'gaming', description: "you'll see", handler: _gamingOutput),
+  Command(name: 'jokes', description: 'bad jokes, on demand', handler: _jokesOutput),
+  Command(name: 'open', description: "open a project's repo, e.g. open sip", handler: _openOutput),
 ];
 
 Command? findCommand(String name) {

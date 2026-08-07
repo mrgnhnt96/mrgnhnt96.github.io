@@ -16,6 +16,7 @@ class ProjectEntry {
     required this.description,
     required this.category,
     this.url,
+    this.pubDevUrl,
     this.stars,
   });
 
@@ -23,7 +24,12 @@ class ProjectEntry {
   final String description;
   final ProjectCategory category;
   final String? url;
+  final String? pubDevUrl;
   final int? stars;
+
+  /// Where this project's code actually lives — its repo if there is one,
+  /// its pub.dev listing otherwise. Null if neither exists (yet).
+  String? get link => url ?? pubDevUrl;
 }
 
 const projects = <ProjectEntry>[
@@ -33,7 +39,7 @@ const projects = <ProjectEntry>[
         'A Dart backend framework inspired by NestJS — decorators, DI, and structure for building APIs. '
         '(Yes, named after the Zelda champion.)',
     category: ProjectCategory.flagship,
-    url: 'https://revali.dev',
+    url: 'https://github.com/mrgnhnt96/revali',
     stars: 9,
   ),
   ProjectEntry(

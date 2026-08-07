@@ -68,8 +68,8 @@ class HumanModeContent extends StatelessComponent {
                 if (project.stars != null) span(classes: 'resume__stars', [.text('★ ${project.stars}')]),
               ]),
               p([.text(project.description)]),
-              if (project.url != null)
-                a(href: project.url!, target: .blank, classes: 'resume__project-link', [.text(project.url!)]),
+              if (project.link != null)
+                a(href: project.link!, target: .blank, classes: 'resume__project-link', [.text(project.link!)]),
             ]),
         ]),
       ]),
