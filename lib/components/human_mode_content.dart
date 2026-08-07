@@ -111,6 +111,16 @@ class HumanModeContent extends StatelessComponent {
         boxSizing: .borderBox,
         color: textPrimary,
         fontFamily: fontStack,
+        // Unlike the terminal, this had no backing panel — it sat straight
+        // on the raw ambient background. Fine when the aurora was subtle,
+        // but low-contrast tokens like textDim disappear into it now that
+        // the aurora's more vivid on mobile. bgPanel (not the more
+        // translucent bgPanelSoft) because this page leans on textDim for
+        // meaningful labels, not just decoration, so it needs a reliably
+        // dark backdrop rather than an especially transparent one.
+        backgroundColor: bgPanel,
+        backdropFilter: .blur(18.px),
+        raw: {'-webkit-backdrop-filter': 'blur(18px)'},
       ),
       css('&__back').styles(
         display: .block,
