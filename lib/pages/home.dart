@@ -1,5 +1,6 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
+import 'package:universal_web/web.dart' as web;
 
 import '../components/ambient_background.dart';
 import '../components/human_mode_content.dart';
@@ -18,27 +19,102 @@ class Home extends StatefulComponent {
 class HomeState extends State<Home> {
   var _mode = TerminalMode.terminal;
 
+  // The pane's entrance animation used to trigger from plain CSS (present
+  // the instant '.home__pane' rendered), which plays immediately on the
+  // SSR-painted HTML before any JS loads — but hydration taking over
+  // sometimes restarts that same CSS animation a beat later on the very
+  // same DOM node, which showed up as a visible double entrance. Since it's
+  // the exact same node, there's no way to tell "the real one" from "the
+  // restart" after the fact.
+  //
+  // So instead this renders with the animation class absent (matching on
+  // both server and initial client build, for a clean hydration with
+  // nothing to restart), then adds it itself, once, right after mount —
+  // there's now only ever one trigger, and it's ours.
+  bool _paneRevealed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncScrollLock();
+    _revealPane();
+  }
+
+  @override
+  void dispose() {
+    if (kIsWeb) web.document.documentElement?.classList.remove('scroll-locked');
+    super.dispose();
+  }
+
+  void _revealPane() {
+    if (!kIsWeb) return;
+    Future.microtask(() {
+      if (mounted) setState(() => _paneRevealed = true);
+    });
+  }
+
   void _setMode(TerminalMode mode) {
     if (mode == _mode) return;
-    setState(() => _mode = mode);
+    setState(() {
+      _mode = mode;
+      _paneRevealed = false;
+    });
+    _revealPane();
+    _syncScrollLock();
+  }
+
+  // Locks scrolling on <html>/<body> themselves while the terminal is
+  // showing — not just the '.home' div. Without this, the document root
+  // stays the scrollable ancestor mobile Safari reaches for when it scrolls
+  // a focused input clear of the keyboard, which reveals dead space below
+  // the terminal panel. This has to run as a DOM side effect since it
+  // reaches outside this component's own subtree. Human mode removes the
+  // lock so its longer content can scroll normally.
+  //
+  // Touch-only: this is purely a workaround for the mobile keyboard-avoidance
+  // behavior above. Desktop never had that problem, and locking there too
+  // just removes the normal page-scroll fallback for no reason.
+  void _syncScrollLock() {
+    if (!kIsWeb) return;
+    final root = web.document.documentElement?.classList;
+    final isTouch = web.window.matchMedia('(pointer: coarse)').matches;
+    if (_mode == TerminalMode.terminal && isTouch) {
+      root?.add('scroll-locked');
+    } else {
+      root?.remove('scroll-locked');
+    }
   }
 
   @override
   Component build(BuildContext context) {
-    return div(classes: 'home', [
+    // Locked to the viewport (no document-level scroll) while the terminal
+    // is showing — mobile Safari otherwise reveals dead space by scrolling
+    // the whole page to keep the focused input clear of the keyboard, since
+    // 100dvh doesn't itself shrink for the keyboard. Locking here forces any
+    // keyboard-avoidance scroll to happen inside the terminal's own scroll
+    // region instead. Human mode needs to scroll normally, so it opts out.
+    final classes = _mode == TerminalMode.terminal ? 'home home--locked' : 'home';
+    final paneClasses = _paneRevealed ? 'home__pane home__pane--in' : 'home__pane';
+    return div(classes: classes, [
       const AmbientBackground(),
       ModeToggle(mode: _mode, onToggle: _setMode),
       div(classes: 'home__stage', [
         if (_mode == TerminalMode.terminal)
-          div(key: const ValueKey('terminal-pane'), classes: 'home__pane', [TerminalShell(onModeChange: _setMode)])
+          div(key: const ValueKey('terminal-pane'), classes: paneClasses, [
+            TerminalShell(onModeChange: _setMode),
+          ])
         else
-          div(key: const ValueKey('human-pane'), classes: 'home__pane', [const HumanModeContent()]),
+          div(key: const ValueKey('human-pane'), classes: paneClasses, [const HumanModeContent()]),
       ]),
     ]);
   }
 
   @css
   static List<StyleRule> get styles => [
+    css('html.scroll-locked, body.scroll-locked').styles(
+      height: Unit.expression('100dvh'),
+      overflow: .hidden,
+    ),
     css('.home', [
       css('&').styles(
         display: .flex,
@@ -57,8 +133,16 @@ class HomeState extends State<Home> {
           display: .flex,
           position: .relative(),
           width: 100.percent,
-          animation: Animation(name: 'pane-in', duration: durSlow, curve: curveSnappy, fillMode: .both),
           justifyContent: .center,
+          // Sit in the animation's 0% pose by default (see '_paneRevealed')
+          // so adding '&--in' has something to animate *from* instead of a
+          // jump-cut. Overridden below for non-scripting contexts, so a
+          // pane that'll never get JS-revealed isn't stuck invisible.
+          opacity: 0,
+          transform: .combine([.translate(y: 10.px), .scale(0.98)]),
+        ),
+        css('&--in').styles(
+          animation: Animation(name: 'pane-in', duration: durSlow, curve: curveSnappy, fillMode: .both),
         ),
       ]),
     ]),
@@ -66,6 +150,24 @@ class HomeState extends State<Home> {
       '0%': Styles(opacity: 0, transform: .combine([.translate(y: 10.px), .scale(0.98)])),
       '100%': Styles(opacity: 1, transform: .combine([.translate(y: 0.px), .scale(1)])),
     }),
+    // '_paneRevealed' is what plays the entrance animation — deliberately
+    // client-triggered, once, well after mount (see its comment for why).
+    // That means a pane that never gets hydrated (JS disabled/blocked)
+    // would otherwise sit permanently invisible, so force it visible
+    // whenever scripting isn't actually available.
+    css.media(MediaQuery.raw('(scripting: none)'), [
+      css('.home__pane').styles(opacity: 1, transform: .none),
+    ]),
+    // Give the terminal window as much of the screen as possible — the
+    // margins that look intentional on desktop just read as wasted space
+    // once the panel is nearly as wide as the viewport anyway.
+    css.media(MediaQuery.screen(maxWidth: 640.px), [
+      css('.home').styles(padding: .symmetric(vertical: 0.5.rem, horizontal: 0.4.rem)),
+      // Touch-only lock (see '_syncScrollLock') — desktop keeps normal page
+      // scroll as a fallback, since it never had the keyboard-avoidance
+      // problem this works around.
+      css('.home--locked').styles(height: Unit.expression('100dvh'), overflow: .hidden),
+    ]),
   ];
 }
 
@@ -107,7 +209,7 @@ class ModeToggle extends StatelessComponent {
         gap: Gap(column: 2.px),
         fontFamily: fontStack,
         backgroundColor: bgPanel,
-        raw: {'appearance': 'none'},
+        raw: {'appearance': 'none', '-webkit-backdrop-filter': 'blur(12px)'},
       ),
       css('&__seg', [
         css('&').styles(

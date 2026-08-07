@@ -27,6 +27,11 @@ void main() {
   // with the provided parameters and components.
   runApp(Document(
     title: 'Morgan Hunt — Staff Software Engineer',
+    // resizes-content makes the visual viewport (and dvh) actually shrink
+    // when the on-screen keyboard opens, instead of Safari panning the page
+    // to keep the focused input clear of the keyboard — which is what was
+    // causing the whole page to "scroll" and reveal dead space on mobile.
+    viewport: 'width=device-width, initial-scale=1.0, interactive-widget=resizes-content',
     meta: {
       'description':
           'Personal site of Morgan Hunt, a Staff Software Engineer building tools for the Dart & Flutter ecosystem.',

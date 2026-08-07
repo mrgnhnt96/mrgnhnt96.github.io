@@ -37,6 +37,7 @@ class TerminalShellState extends State<TerminalShell> {
   int _historyIndex = 0;
   int _nextKeyId = 0;
   String _draft = '';
+  bool _autoTyping = false;
 
   /// The first command name that starts with the in-progress draft, for
   /// type-ahead (Tab to accept). Only suggests while typing the command
@@ -69,15 +70,18 @@ class TerminalShellState extends State<TerminalShell> {
   }
 
   void _seedBoot() {
-    const lines = [
-      'Morgan Hunt — Staff Software Engineer',
-      'Dart & Flutter ecosystem tooling · Mesa, AZ',
-      "Type 'help' to look around — or just use the toggle up top.",
+    final actions = TerminalActions(
+      clear: () => setState(_entries.clear),
+      setMode: component.onModeChange,
+      runCommand: _runTapped,
+    );
+    final lines = [
+      p(classes: 'term-boot', [.text('Morgan Hunt — Staff Software Engineer')]),
+      p(classes: 'term-boot', [.text('Dart & Flutter ecosystem tooling · Mesa, AZ')]),
+      p(classes: 'term-boot', linkifyCommands("Type 'help' to look around — or just use the toggle up top.", actions)),
     ];
     for (var i = 0; i < lines.length; i++) {
-      _entries.add(
-        _Entry(content: p(classes: 'term-boot', [.text(lines[i])]), delayMs: i * 110, keyId: _nextKeyId++),
-      );
+      _entries.add(_Entry(content: lines[i], delayMs: i * 110, keyId: _nextKeyId++));
     }
   }
 
@@ -100,6 +104,7 @@ class TerminalShellState extends State<TerminalShell> {
 
     if (trimmed.toLowerCase() == 'clear') {
       setState(_entries.clear);
+      _dismissKeyboardOnTouch();
       return;
     }
 
@@ -107,8 +112,12 @@ class TerminalShellState extends State<TerminalShell> {
     final name = tokens.first.toLowerCase();
     final args = tokens.skip(1).toList();
     final cmd = findCommand(name);
-    final actions = TerminalActions(clear: () => setState(_entries.clear), setMode: component.onModeChange);
-    final outputs = cmd != null ? cmd.handler(args, actions) : notFoundOutput(name);
+    final actions = TerminalActions(
+      clear: () => setState(_entries.clear),
+      setMode: component.onModeChange,
+      runCommand: _runTapped,
+    );
+    final outputs = cmd != null ? cmd.handler(args, actions) : notFoundOutput(name, actions);
 
     setState(() {
       _append(_echo(trimmed), 0);
@@ -117,6 +126,16 @@ class TerminalShellState extends State<TerminalShell> {
       }
     });
     context.binding.addPostFrameCallback(_scrollToBottom);
+    _dismissKeyboardOnTouch();
+  }
+
+  // Once the output's shown, drop the keyboard on touch devices — leaving
+  // it up just eats half the screen for output the user came here to read.
+  // Desktop keeps focus so typing the next command doesn't need a re-click.
+  void _dismissKeyboardOnTouch() {
+    if (kIsWeb && web.window.matchMedia('(pointer: coarse)').matches) {
+      _inputKey.currentNode?.blur();
+    }
   }
 
   void _historyUp() {
@@ -135,13 +154,19 @@ class TerminalShellState extends State<TerminalShell> {
     });
   }
 
+  // Submitting is handled by the surrounding <form>'s submit event, not a
+  // keydown check for 'Enter' — mobile virtual keyboards don't reliably
+  // fire a keydown with key: 'Enter' (especially with predictive text),
+  // but a single-input form's submit event fires regardless of how Enter
+  // was triggered.
+  void _handleFormSubmit(web.Event event) {
+    event.preventDefault();
+    _submit();
+  }
+
   void _handleKeyDown(web.Event event) {
     final e = event as web.KeyboardEvent;
     switch (e.key) {
-      case 'Enter':
-        e.preventDefault();
-        _submit();
-        break;
       case 'ArrowUp':
         e.preventDefault();
         _historyUp();
@@ -173,6 +198,23 @@ class TerminalShellState extends State<TerminalShell> {
     if (_suggestion case final suggestion?) setState(() => _draft = suggestion);
   }
 
+  /// Runs a command as if the user typed and submitted it themselves —
+  /// scrolls the prompt into view, "types" the command out, then submits.
+  /// Lets tappable command names (e.g. in `help` output) work without a
+  /// keyboard, which matters most on touch devices.
+  Future<void> _runTapped(String command) async {
+    if (_autoTyping) return;
+    _autoTyping = true;
+    _scrollToBottom();
+    for (var i = 0; i <= command.length; i++) {
+      setState(() => _draft = command.substring(0, i));
+      await Future<void>.delayed(const Duration(milliseconds: 28));
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    _autoTyping = false;
+    _submit();
+  }
+
   @override
   Component build(BuildContext context) {
     return div(classes: 'terminal', events: {'click': _focusInput}, [
@@ -183,29 +225,40 @@ class TerminalShellState extends State<TerminalShell> {
       div(key: _bodyKey, classes: 'terminal__body', [
         for (final entry in _entries)
           OutputLine(key: ValueKey(entry.keyId), delayMs: entry.delayMs, child: entry.content),
-        div(classes: 'terminal__prompt-row', [
-          span(classes: 'terminal__prompt-glyph', [.text('❯')]),
-          input<String>(
-            key: _inputKey,
-            type: .text,
-            value: _draft,
-            onInput: (v) => setState(() => _draft = v),
-            events: {'keydown': _handleKeyDown},
-            classes: 'terminal__input',
-            attributes: {
-              'autocomplete': 'off',
-              'autocapitalize': 'off',
-              'spellcheck': 'false',
-              'aria-label': 'terminal input',
+      ]),
+      // Its own flex item, outside the scrollable body — stays pinned at
+      // the bottom instead of scrolling away with the history above it.
+      form(classes: 'terminal__prompt-row', events: {'submit': _handleFormSubmit}, [
+        span(classes: 'terminal__prompt-glyph', [.text('❯')]),
+        input<String>(
+          key: _inputKey,
+          type: .text,
+          value: _draft,
+          onInput: (v) => setState(() => _draft = v),
+          events: {'keydown': _handleKeyDown},
+          classes: 'terminal__input',
+          attributes: {
+            'autocomplete': 'off',
+            'autocapitalize': 'off',
+            'spellcheck': 'false',
+            'enterkeyhint': 'go',
+            'aria-label': 'terminal input',
+          },
+        ),
+        if (_suggestion case final suggestion?)
+          span(
+            classes: 'terminal__suggestion',
+            events: {
+              // Blocking mousedown (not click) keeps the browser from ever
+              // blurring the input in the first place — otherwise it blurs
+              // on press, then our own focus handler re-focuses it right
+              // after, and that blur/refocus flickers the keyboard shut
+              // and open again on mobile.
+              'mousedown': (e) => e.preventDefault(),
+              'click': (_) => _acceptSuggestion(),
             },
+            [.text('${suggestion.substring(_draft.length)} ⇥')],
           ),
-          if (_suggestion case final suggestion?)
-            span(
-              classes: 'terminal__suggestion',
-              events: {'click': (_) => _acceptSuggestion()},
-              [.text('${suggestion.substring(_draft.length)} ⇥')],
-            ),
-        ]),
       ]),
     ]);
   }
@@ -214,6 +267,8 @@ class TerminalShellState extends State<TerminalShell> {
   static List<StyleRule> get styles => [
     css('.terminal', [
       css('&').styles(
+        display: .flex,
+        flexDirection: .column,
         width: 100.percent,
         maxWidth: 720.px,
         // dvh (not vh) so the panel doesn't resize as mobile browser chrome
@@ -229,6 +284,7 @@ class TerminalShellState extends State<TerminalShell> {
         cursor: .text,
         fontFamily: fontStack,
         backgroundColor: bgPanel,
+        raw: {'-webkit-backdrop-filter': 'blur(18px)'},
       ),
       css('&__titlebar').styles(
         display: .flex,
@@ -247,16 +303,39 @@ class TerminalShellState extends State<TerminalShell> {
       css('&__title').styles(color: textDim, fontSize: 0.8.rem),
       css('&__body').styles(
         display: .flex,
+        // A cap, not a fixed size — on desktop the panel still shrink-wraps
+        // to content. On mobile '.terminal' gets an explicit height and
+        // this instead grows via flex to fill it (mobile override below).
         maxHeight: Unit.expression('60dvh'),
+        flex: .grow(1),
         padding: .all(1.25.rem),
         overflow: .only(y: .auto),
+        // Scrolling within the history shouldn't chain into scrolling the
+        // outer page once it hits the top/bottom edge, now that desktop
+        // has normal page scroll back as a fallback.
+        raw: {'overscroll-behavior': 'contain'},
         flexDirection: .column,
         gap: Gap(row: 0.65.rem),
         color: textPrimary,
         fontSize: 0.92.rem,
         lineHeight: 1.55.em,
       ),
-      css('&__prompt-row').styles(display: .flex, alignItems: .center, gap: Gap(column: 0.6.rem)),
+      // Bottom-anchors sparse content against the prompt below (empty
+      // space collects above it instead) via an auto margin rather than
+      // 'justify-content: flex-end' — the auto-margin approach degrades
+      // to plain flex-start (well-supported, correctly scrollable)
+      // overflow once content actually exceeds the container, instead of
+      // hitting the flex-end/reverse-overflow scrollHeight bug Chromium
+      // has (confirmed: it reported zero overflow and refused to scroll).
+      css('&__body > :first-child').styles(margin: .only(top: .auto)),
+      css('&__prompt-row').styles(
+        display: .flex,
+        margin: .zero,
+        padding: .symmetric(horizontal: 1.25.rem, vertical: 0.9.rem),
+        border: .only(top: BorderSide.solid(color: borderSubtle, width: 1.px)),
+        alignItems: .center,
+        gap: Gap(column: 0.6.rem),
+      ),
       css('&__prompt-glyph').styles(color: accentCyan, fontWeight: .w700),
       css('&__input', [
         css('&').styles(
@@ -315,8 +394,34 @@ class TerminalShellState extends State<TerminalShell> {
       css('& > span:first-child').styles(minWidth: 6.rem),
     ]),
     css.media(MediaQuery.screen(maxWidth: 640.px), [
-      css('.terminal').styles(maxHeight: Unit.expression('82dvh'), radius: .all(.circular(0.px))),
-      css('.terminal__body').styles(padding: .all(0.9.rem), fontSize: 0.85.rem),
+      // A fixed height (not just a cap) so the window always fills the
+      // screen like a real terminal, instead of shrinking to whatever
+      // little content is in it. Matches '.home's mobile padding.
+      css('.terminal').styles(
+        height: Unit.expression('calc(100dvh - 1rem)'),
+        maxHeight: Unit.expression('calc(100dvh - 1rem)'),
+        radius: .all(.circular(0.px)),
+        // The panel covers nearly the whole screen on mobile, so the
+        // ambient aurora has almost no margin left to show through — let
+        // more of it bleed through the glass itself instead. Saturate()
+        // counteracts blur's tendency to wash color toward gray, so the
+        // aurora reads as vivid rather than just a lighter grey.
+        backgroundColor: .rgba(15, 17, 26, 0.5),
+        backdropFilter: Filter.list([.blur(24.px), .saturate(1.8)]),
+        raw: {'-webkit-backdrop-filter': 'blur(24px) saturate(1.8)'},
+      ),
+      css('.terminal__body').styles(
+        // Let the body flex-grow to fill the now-fixed-height window
+        // instead of capping out at 60dvh and leaving dead space below it.
+        maxHeight: Unit.expression('none'),
+        padding: .all(0.9.rem),
+        fontSize: 0.85.rem,
+      ),
+      css('.terminal__prompt-row').styles(padding: .symmetric(horizontal: 0.9.rem, vertical: 0.7.rem)),
+      // The panel now runs edge-to-edge, so the fixed mode toggle sits
+      // right on top of the titlebar — drop the decorative title text
+      // rather than have it collide with (or hide behind) the toggle.
+      css('.terminal__title').styles(display: .none),
       // Inputs under 16px trigger an automatic zoom-in on focus in iOS
       // Safari — keep these at 16px so tapping the prompt doesn't yank the
       // whole page's zoom level.
