@@ -381,6 +381,7 @@ class TerminalShellState extends State<TerminalShell> {
     css('.term-muted').styles(margin: .zero, color: textMuted),
     css('.term-accent').styles(margin: .zero, color: accentCyan),
     css('.term-accent-amber').styles(color: accentAmber),
+    css('.term-accent-violet').styles(color: accentViolet),
     css('.term-error').styles(margin: .zero, color: accentDanger),
     css('.term-link', [
       css('&').styles(

@@ -168,10 +168,10 @@ List<Component> _lsOutput(List<String> args, TerminalActions actions) {
     return [_error(_pick(_lsFlagJokes))];
   }
   final categories = switch (category) {
-    'projects' => [ProjectCategory.flagship],
+    'projects' => [ProjectCategory.project],
     'tools' => [ProjectCategory.tool],
     'games' => [ProjectCategory.game],
-    null => [ProjectCategory.flagship, ProjectCategory.tool, ProjectCategory.game],
+    null => [ProjectCategory.project, ProjectCategory.tool, ProjectCategory.game],
     _ => null,
   };
 
@@ -186,9 +186,16 @@ List<Component> _lsOutput(List<String> args, TerminalActions actions) {
     ];
   }
 
-  final entries = projectsByCategory(categories.first);
+  // Featured entries first, so the two frameworks lead the listing instead of
+  // sitting wherever the data file happens to put them.
+  final inCategory = projectsByCategory(categories.first);
+  final entries = [
+    ...inCategory.where((entry) => entry.featured),
+    ...inCategory.where((entry) => !entry.featured),
+  ];
   final hint = switch (category) {
-    'projects' => "Try 'cat resume' for the short version, or 'contact' to reach out.",
+    'projects' =>
+      "Revali and Zonai are the two I've spent years on — run 'info revali' or 'info zonai' for the full story.",
     'tools' => "Back to 'ls projects' for the bigger stuff, or 'contact' to reach out.",
     'games' => "Yes, I have a problem. Try 'ls projects' for the serious stuff.",
     _ => "Try 'contact' to reach out.",
@@ -200,11 +207,53 @@ List<Component> _lsOutput(List<String> args, TerminalActions actions) {
           _runnableLink('${entry.name}/', actions, runs: 'open ${entry.name}')
         else
           span(classes: 'term-muted', [.text('${entry.name}/')]),
+        if (entry.featured) span(classes: 'term-accent-violet', [.text('★ flagship')]),
         span(classes: 'term-muted', [.text(entry.description)]),
         if (entry.stars != null) span(classes: 'term-accent-amber', [.text('★ ${entry.stars}')]),
       ]),
     _mutedHint(hint, actions),
   ];
+}
+
+List<Component> _infoOutput(List<String> args, TerminalActions actions) {
+  if (args.isEmpty) {
+    return [_errorHint("info: missing project name — try 'info revali' or 'info zonai'.", actions)];
+  }
+  final name = args.first.toLowerCase();
+  final entry = _findProject(name);
+  if (entry == null) {
+    return [_errorHint("info: $name: no such project — try 'ls projects'.", actions)];
+  }
+  if (entry.highlights.isEmpty) {
+    return [
+      div(classes: 'term-ls-row', [
+        p(classes: 'term-strong', [.text(entry.name)]),
+        if (entry.stars != null) span(classes: 'term-accent-amber', [.text('★ ${entry.stars}')]),
+      ]),
+      _muted(entry.description),
+      _mutedHint("Only the flagships have a long version — try 'info revali' or 'info zonai'.", actions),
+    ];
+  }
+  return [
+    div(classes: 'term-block', [
+      p(classes: 'term-strong', [.text(entry.name)]),
+      if (entry.status != null) p(classes: 'term-accent-amber', [.text(entry.status!)]),
+      p(classes: 'term-accent', [.text(entry.description)]),
+      ul(classes: 'term-list', [for (final highlight in entry.highlights) li([.text(highlight)])]),
+      div(classes: 'term-ls-row', [
+        if (entry.docsUrl != null) _link(entry.docsUrl!, 'docs: ${entry.docsUrl}'),
+        if (entry.link != null) _link(entry.link!, 'source: ${entry.link}'),
+      ]),
+    ]),
+    _mutedHint("Run 'open ${entry.name}' to jump straight to the repo.", actions),
+  ];
+}
+
+ProjectEntry? _findProject(String name) {
+  for (final project in projects) {
+    if (project.name == name) return project;
+  }
+  return null;
 }
 
 List<Component> _catOutput(List<String> args, TerminalActions actions) {
@@ -228,13 +277,7 @@ List<Component> _openOutput(List<String> args, TerminalActions actions) {
     return [_errorHint("open: missing project name — try 'ls projects' first.", actions)];
   }
   final name = args.first.toLowerCase();
-  ProjectEntry? entry;
-  for (final p in projects) {
-    if (p.name == name) {
-      entry = p;
-      break;
-    }
-  }
+  final entry = _findProject(name);
   if (entry == null) {
     return [_errorHint("open: $name: no such project — try 'ls projects', 'ls tools', or 'ls games'.", actions)];
   }
@@ -468,6 +511,7 @@ final commands = <Command>[
   Command(name: 'about', description: 'the longer story', handler: _aboutOutput),
   Command(name: 'experience', description: 'work history', handler: _experienceOutput),
   Command(name: 'ls', description: "list 'projects', 'tools', or 'games'", handler: _lsOutput),
+  Command(name: 'info', description: 'the long version, e.g. info zonai', handler: _infoOutput),
   Command(name: 'cat', description: 'read a file, e.g. cat resume', handler: _catOutput),
   Command(name: 'contact', description: 'how to reach me', handler: _contactOutput),
   Command(

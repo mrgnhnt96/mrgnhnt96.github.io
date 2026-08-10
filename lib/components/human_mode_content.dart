@@ -19,7 +19,8 @@ class HumanModeContent extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final flagship = projectsByCategory(ProjectCategory.flagship);
+    final featured = featuredProjects;
+    final rest = projectsByCategory(ProjectCategory.project).where((entry) => !entry.featured).toList();
 
     return div(classes: 'resume', [
       if (standalone)
@@ -59,9 +60,30 @@ class HumanModeContent extends StatelessComponent {
         ]),
       ]),
       section(classes: 'resume__section', [
-        h2([.text('// projects')]),
+        h2([.text('// frameworks')]),
         div(classes: 'resume__cards', [
-          for (final project in flagship)
+          for (final project in featured)
+            article(classes: 'resume__card resume__card--featured', [
+              div(classes: 'resume__card-head', [
+                h3([.text(project.name)]),
+                if (project.stars != null) span(classes: 'resume__stars', [.text('★ ${project.stars}')]),
+              ]),
+              if (project.status != null) p(classes: 'resume__status', [.text(project.status!)]),
+              p([.text(project.description)]),
+              ul([for (final highlight in project.highlights) li([.text(highlight)])]),
+              div(classes: 'resume__project-links', [
+                if (project.docsUrl != null)
+                  a(href: project.docsUrl!, target: .blank, classes: 'resume__project-link', [.text('docs')]),
+                if (project.link != null)
+                  a(href: project.link!, target: .blank, classes: 'resume__project-link', [.text('source')]),
+              ]),
+            ]),
+        ]),
+      ]),
+      section(classes: 'resume__section', [
+        h2([.text('// other projects')]),
+        div(classes: 'resume__cards', [
+          for (final project in rest)
             article(classes: 'resume__card', [
               div(classes: 'resume__card-head', [
                 h3([.text(project.name)]),
@@ -184,6 +206,35 @@ class HumanModeContent extends StatelessComponent {
         css('p').styles(margin: .only(top: 0.5.rem), color: textMuted),
         css('ul').styles(padding: .only(left: 1.1.rem), margin: .only(top: 0.75.rem), color: textMuted),
         css('li').styles(margin: .only(bottom: 0.35.rem), lineHeight: 1.5.em),
+      ]),
+      // Revali and Zonai are the work everything else orbits, so their cards
+      // get the violet aurora treatment — a tinted border, a wash of the two
+      // accent colors, and a larger title — to separate them from the
+      // one-liner cards below without needing a "featured" badge to say so.
+      css('&__card--featured', [
+        css('&').styles(
+          border: .all(color: .rgba(167, 139, 250, 0.35), width: 1.px),
+          radius: .all(.circular(12.px)),
+          raw: {
+            'background-image':
+                'linear-gradient(160deg, rgba(94, 234, 212, 0.07), rgba(167, 139, 250, 0.07))',
+            'box-shadow': '0 14px 40px rgba(167, 139, 250, 0.08)',
+          },
+        ),
+        css('&:hover').styles(border: .all(color: .rgba(167, 139, 250, 0.6), width: 1.px)),
+        css('h3').styles(fontSize: 1.35.rem),
+      ]),
+      css('&__status').styles(
+        margin: .only(top: 0.4.rem),
+        color: accentAmber,
+        fontSize: 0.8.rem,
+        letterSpacing: 0.5.px,
+      ),
+      css('&__project-links', [
+        css('&').styles(display: .flex, margin: .only(top: 0.9.rem), flexWrap: .wrap, gap: Gap(column: 1.rem)),
+        // The standalone link on a plain card spaces itself; inside this row
+        // the row owns the spacing.
+        css('a').styles(margin: .zero),
       ]),
       css('&__card-head').styles(
         display: .flex,
