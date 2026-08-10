@@ -23,8 +23,7 @@ class HumanModeContent extends StatelessComponent {
     final rest = projectsByCategory(ProjectCategory.project).where((entry) => !entry.featured).toList();
 
     return div(classes: 'resume', [
-      if (standalone)
-        a(href: '/', classes: 'resume__back', [.text('← back to the terminal')]),
+      if (standalone) a(href: '/', classes: 'resume__back', [.text('← back to the terminal')]),
       header(classes: 'resume__hero', [
         h1([.text(Profile.name)]),
         p(classes: 'resume__role', [.text('${Profile.role} · ${Profile.location}')]),
@@ -55,7 +54,9 @@ class HumanModeContent extends StatelessComponent {
                 span(classes: 'resume__period', [.text(job.period)]),
               ]),
               p(classes: 'resume__card-role', [.text(job.role)]),
-              ul([for (final bullet in job.bullets) li([.text(bullet)])]),
+              ul([
+                for (final bullet in job.bullets) li([.text(bullet)]),
+              ]),
             ]),
         ]),
       ]),
@@ -70,7 +71,9 @@ class HumanModeContent extends StatelessComponent {
               ]),
               if (project.status != null) p(classes: 'resume__status', [.text(project.status!)]),
               p([.text(project.description)]),
-              ul([for (final highlight in project.highlights) li([.text(highlight)])]),
+              ul([
+                for (final highlight in project.highlights) li([.text(highlight)]),
+              ]),
               div(classes: 'resume__project-links', [
                 if (project.docsUrl != null)
                   a(href: project.docsUrl!, target: .blank, classes: 'resume__project-link', [.text('docs')]),
@@ -164,10 +167,22 @@ class HumanModeContent extends StatelessComponent {
           },
         ),
       ]),
-      css('&__role').styles(margin: .only(top: 0.5.rem), color: textMuted, fontSize: 1.1.rem),
-      css('&__tagline').styles(margin: .only(top: 0.75.rem), color: accentCyan, fontStyle: .italic),
+      css('&__role').styles(
+        margin: .only(top: 0.5.rem),
+        color: textMuted,
+        fontSize: 1.1.rem,
+      ),
+      css('&__tagline').styles(
+        margin: .only(top: 0.75.rem),
+        color: accentCyan,
+        fontStyle: .italic,
+      ),
       css('&__links', [
-        css('&').styles(display: .flex, margin: .only(top: 1.25.rem), gap: Gap(column: 1.25.rem)),
+        css('&').styles(
+          display: .flex,
+          margin: .only(top: 1.25.rem),
+          gap: Gap(column: 1.25.rem),
+        ),
         css('a').styles(
           transition: Transition('color', duration: durFast),
           color: textPrimary,
@@ -186,7 +201,11 @@ class HumanModeContent extends StatelessComponent {
         ),
         css('p').styles(color: textMuted, lineHeight: 1.6.em),
       ]),
-      css('&__cards').styles(display: .flex, flexDirection: .column, gap: Gap(row: 1.rem)),
+      css('&__cards').styles(
+        display: .flex,
+        flexDirection: .column,
+        gap: Gap(row: 1.rem),
+      ),
       css('&__card', [
         css('&').styles(
           padding: .all(1.25.rem),
@@ -203,9 +222,19 @@ class HumanModeContent extends StatelessComponent {
           transform: .translate(y: (-2).px),
         ),
         css('h3').styles(margin: .zero, color: textPrimary, fontSize: 1.05.rem),
-        css('p').styles(margin: .only(top: 0.5.rem), color: textMuted),
-        css('ul').styles(padding: .only(left: 1.1.rem), margin: .only(top: 0.75.rem), color: textMuted),
-        css('li').styles(margin: .only(bottom: 0.35.rem), lineHeight: 1.5.em),
+        css('p').styles(
+          margin: .only(top: 0.5.rem),
+          color: textMuted,
+        ),
+        css('ul').styles(
+          padding: .only(left: 1.1.rem),
+          margin: .only(top: 0.75.rem),
+          color: textMuted,
+        ),
+        css('li').styles(
+          margin: .only(bottom: 0.35.rem),
+          lineHeight: 1.5.em,
+        ),
       ]),
       // Revali and Zonai are the work everything else orbits, so their cards
       // get the violet aurora treatment — a tinted border, a wash of the two
@@ -216,12 +245,13 @@ class HumanModeContent extends StatelessComponent {
           border: .all(color: .rgba(167, 139, 250, 0.35), width: 1.px),
           radius: .all(.circular(12.px)),
           raw: {
-            'background-image':
-                'linear-gradient(160deg, rgba(94, 234, 212, 0.07), rgba(167, 139, 250, 0.07))',
+            'background-image': 'linear-gradient(160deg, rgba(94, 234, 212, 0.07), rgba(167, 139, 250, 0.07))',
             'box-shadow': '0 14px 40px rgba(167, 139, 250, 0.08)',
           },
         ),
-        css('&:hover').styles(border: .all(color: .rgba(167, 139, 250, 0.6), width: 1.px)),
+        css('&:hover').styles(
+          border: .all(color: .rgba(167, 139, 250, 0.6), width: 1.px),
+        ),
         css('h3').styles(fontSize: 1.35.rem),
       ]),
       css('&__status').styles(
@@ -231,7 +261,12 @@ class HumanModeContent extends StatelessComponent {
         letterSpacing: 0.5.px,
       ),
       css('&__project-links', [
-        css('&').styles(display: .flex, margin: .only(top: 0.9.rem), flexWrap: .wrap, gap: Gap(column: 1.rem)),
+        css('&').styles(
+          display: .flex,
+          margin: .only(top: 0.9.rem),
+          flexWrap: .wrap,
+          gap: Gap(column: 1.rem),
+        ),
         // The standalone link on a plain card spaces itself; inside this row
         // the row owns the spacing.
         css('a').styles(margin: .zero),
@@ -245,7 +280,11 @@ class HumanModeContent extends StatelessComponent {
       ),
       css('&__period').styles(color: textDim, fontSize: 0.85.rem, whiteSpace: .noWrap),
       css('&__stars').styles(color: accentAmber, fontSize: 0.85.rem),
-      css('&__card-role').styles(margin: .only(top: 0.35.rem), color: accentCyan, fontSize: 0.9.rem),
+      css('&__card-role').styles(
+        margin: .only(top: 0.35.rem),
+        color: accentCyan,
+        fontSize: 0.9.rem,
+      ),
       css('&__project-link').styles(
         display: .inlineBlock,
         margin: .only(top: 0.75.rem),
@@ -253,7 +292,11 @@ class HumanModeContent extends StatelessComponent {
         fontSize: 0.85.rem,
         textDecoration: TextDecoration(line: .none),
       ),
-      css('&__skills').styles(display: .flex, flexDirection: .column, gap: Gap(row: 1.rem)),
+      css('&__skills').styles(
+        display: .flex,
+        flexDirection: .column,
+        gap: Gap(row: 1.rem),
+      ),
       css('&__skill-group').styles(
         display: .flex,
         flexWrap: .wrap,
@@ -268,7 +311,11 @@ class HumanModeContent extends StatelessComponent {
         textTransform: .upperCase,
         letterSpacing: 1.px,
       ),
-      css('&__skill-items').styles(display: .flex, flexWrap: .wrap, gap: Gap(row: 0.5.rem, column: 0.5.rem)),
+      css('&__skill-items').styles(
+        display: .flex,
+        flexWrap: .wrap,
+        gap: Gap(row: 0.5.rem, column: 0.5.rem),
+      ),
       css('&__pill').styles(
         padding: .symmetric(horizontal: 0.75.rem, vertical: 0.3.rem),
         border: .all(color: borderSubtle, width: 1.px),

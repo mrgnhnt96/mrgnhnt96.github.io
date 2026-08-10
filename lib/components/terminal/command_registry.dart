@@ -125,7 +125,10 @@ List<Component> _whoamiOutput(List<String> args, TerminalActions actions) => [
 List<Component> _aboutOutput(List<String> args, TerminalActions actions) => [
   _line(Profile.summary),
   _line(Profile.howIWork),
-  _mutedHint("Next: 'experience' for the work history, 'ls projects' for what I've built, or 'gaming' for a tangent.", actions),
+  _mutedHint(
+    "Next: 'experience' for the work history, 'ls projects' for what I've built, or 'gaming' for a tangent.",
+    actions,
+  ),
 ];
 
 const _gamingLines = [
@@ -149,7 +152,9 @@ List<Component> _experienceOutput(List<String> args, TerminalActions actions) =>
     div(classes: 'term-block', [
       p(classes: 'term-strong', [.text('${job.company} — ${job.role}')]),
       _muted(job.period),
-      ul(classes: 'term-list', [for (final bullet in job.bullets) li([.text(bullet)])]),
+      ul(classes: 'term-list', [
+        for (final bullet in job.bullets) li([.text(bullet)]),
+      ]),
     ]),
   _mutedHint("See 'ls projects' for things I've built on the side, or 'contact' to reach out.", actions),
 ];
@@ -239,7 +244,9 @@ List<Component> _infoOutput(List<String> args, TerminalActions actions) {
       p(classes: 'term-strong', [.text(entry.name)]),
       if (entry.status != null) p(classes: 'term-accent-amber', [.text(entry.status!)]),
       p(classes: 'term-accent', [.text(entry.description)]),
-      ul(classes: 'term-list', [for (final highlight in entry.highlights) li([.text(highlight)])]),
+      ul(classes: 'term-list', [
+        for (final highlight in entry.highlights) li([.text(highlight)]),
+      ]),
       div(classes: 'term-ls-row', [
         if (entry.docsUrl != null) _link(entry.docsUrl!, 'docs: ${entry.docsUrl}'),
         if (entry.link != null) _link(entry.link!, 'source: ${entry.link}'),
@@ -348,7 +355,9 @@ List<Component> _jokesOutput(List<String> args, TerminalActions actions) {
 
 List<Component> _sudoOutput(List<String> args, TerminalActions actions) {
   if (args.join(' ').toLowerCase() == 'make me a sandwich') {
-    return [p(classes: 'term-accent', [.text('Okay.')])];
+    return [
+      p(classes: 'term-accent', [.text('Okay.')]),
+    ];
   }
   return [_error('Permission denied. (nice try, though)')];
 }
@@ -374,125 +383,194 @@ class _Egg {
 /// completion. Each one picks a random line from its pool so retyping the
 /// same command doesn't feel like hitting the same wall twice.
 final _easterEggs = <_Egg>[
-  _Egg(['grep'], [
-    "grep: no haystack, no needle — this whole site fits on one page.",
-    "grep: 0 matches for 'attention span'. try 'help' instead.",
-    "grep: this terminal doesn't have a filesystem, just vibes.",
-    'grep: I use ctrl+F like everyone else.',
-    'grep: pattern not found — much like a clean regex on the first try.',
-  ]),
-  _Egg(['touch'], [
-    "touch: cannot create file — there's no filesystem, just this conversation.",
-    "touch: permission denied. some things are better left un-touch'd.",
-    'touch grass: now THAT command I can get behind.',
-    "touch: file exists — it's called this website, and I already built it.",
-    'touch: nothing to create here, only things to read.',
-  ]),
-  _Egg(['cd'], [
-    "cd: nowhere to go — you're already exactly where you need to be.",
-    "cd: this isn't a filesystem, it's a conversation. try 'help'.",
-    "cd ..: relatable, but there's no parent directory here.",
-    "cd /: access denied, mostly because '/' doesn't exist in a browser tab.",
-    'cd: I got rid of directories years ago. ask me about monorepo tooling sometime.',
-  ]),
-  _Egg(['pwd'], [
-    'pwd: you are here. right now. reading this.',
-    "pwd: somewhere between 'curious' and 'procrastinating'.",
-    'pwd: /home/visitor/probably-should-be-working',
-    "pwd: this is a website, not a filesystem — but you're in the terminal panel, if that helps.",
-  ]),
-  _Egg(['mkdir'], [
-    'mkdir: permission denied — I already built enough folders for one lifetime.',
-    "mkdir: directory not created. this site's flat by design.",
-    "mkdir new_career: nice thought, but let's not, not today.",
-  ]),
-  _Egg(['rm'], [
-    'rm: not today. this site has feelings.',
-    "rm -rf /: absolutely not — I've seen that story end badly enough times.",
-    'rm: permission denied. everything here is load-bearing.',
-    "rm: nice try. this isn't your monorepo's node_modules.",
-    'rm -rf: I like you, but not that much.',
-  ], style: _EggStyle.error),
-  _Egg(['vim', 'nvim'], [
-    "vim: you're in. good luck getting out. (:wq, if you're new here.)",
-    "vim: opened a file that doesn't exist. classic Tuesday.",
-    "vim: entering insert mode... just kidding, there's nothing to insert.",
-    ':wq: that one you can actually type in real life. carry on.',
-  ]),
-  _Egg(['nano'], [
-    "nano: opened a file that doesn't exist, in an editor that isn't running. ctrl+x to feel something.",
-    'nano: respect for skipping the vim exit joke entirely.',
-    'nano: saved nothing, changed nothing, felt something.',
-  ]),
-  _Egg(['emacs'], [
-    'emacs: an excellent operating system, lacking only a decent terminal portfolio site.',
-    'emacs: M-x nothing-happens',
-    "emacs vs vim: not getting involved. I like my friendships intact.",
-  ]),
-  _Egg(['git'], [
-    "git status: everything's committed. nothing to see here.",
-    'git blame: it was already like this when I got here.',
-    "git log: 'fix typo' × 47",
-    'git push --force: living dangerously, I see.',
-    "git: this site doesn't need version control, just vibes and Jaspr.",
-  ]),
-  _Egg(['npm', 'yarn', 'pnpm'], [
-    'npm install: this site runs on Dart, not node_modules. no gigabytes were harmed.',
-    'npm audit: 1400 vulnerabilities found. luckily, not here.',
-    "yarn: cozy package manager, wrong ecosystem — try 'dart pub get'.",
-    'pnpm: efficient choice, wrong site.',
-  ]),
-  _Egg(['python', 'python3'], [
-    'python: wrong snake, wrong charmer. this site speaks Dart.',
-    'python3: there are two Pythons and infinite opinions about which one you meant.',
-    'import antigravity: nice reference, wrong tab.',
-  ]),
-  _Egg(['curl', 'wget'], [
-    "curl: nothing to fetch — you're already looking at the response.",
-    'curl -X GET https://this-site: 200 OK, obviously.',
-    'wget: downloading nothing, at full speed.',
-  ]),
-  _Egg(['ssh'], [
-    'ssh: connecting to production... just kidding, there is no production, this is static-rendered.',
-    "ssh: permission denied (publickey, and also this isn't a server).",
-    "ssh root@localhost: bold of you to assume I'd give you root.",
-  ], style: _EggStyle.error),
-  _Egg(['man'], [
-    "man: no manual entry for that. try 'help' — it's shorter anyway.",
-    'man: RTFM energy noted. there is no manual, just a website.',
-    "man grep: now you're just chaining jokes. I respect it.",
-  ]),
-  _Egg(['history'], [
-    "history: mostly 'help', a few typos, and one very confident 'sudo rm -rf /'.",
-    'history: you can already scroll up for this, but I respect the effort.',
-    'history | grep regret: too many matches to display.',
-  ]),
-  _Egg(['exit', 'quit', 'logout'], [
-    'exit: there is no escape. this is a single-page app.',
-    "logout: you're not logged in. you're just... here.",
-    'quit: the real exit is closing the tab, and even that feels rude.',
-    'exit: ctrl+w is right there, no judgment.',
-  ], style: _EggStyle.accent),
-  _Egg(['ps', 'top'], [
-    'ps aux: coffee.exe (running), vim (still open since 2019), motivation (sleeping)',
-    'top: CPU 2%, procrastination 98%.',
-    "ps: 1 process found — you, reading a terminal joke instead of 'ls projects'.",
-  ]),
-  _Egg(['chmod', 'chown'], [
-    'chmod 777: living dangerously. respect, but no.',
-    "chown: this isn't yours to own — but nice try.",
-    'chmod +x life: if only it worked that way.',
-  ], style: _EggStyle.error),
-  _Egg(['kill'], [
-    "kill: cannot kill process 1 — it's a metaphor, and also init.",
-    "kill -9: brutal, and also unnecessary. nothing's running.",
-    "kill: there's nothing to end here except your patience.",
-  ], style: _EggStyle.error),
-  _Egg(['reboot', 'shutdown', 'poweroff'], [
-    "shutdown: this isn't that kind of terminal — try refreshing the page.",
-    'reboot: rebooting... just kidding, everything here is already stateless.',
-    'poweroff: bold command for a static site.',
-  ], style: _EggStyle.error),
+  _Egg(
+    ['grep'],
+    [
+      "grep: no haystack, no needle — this whole site fits on one page.",
+      "grep: 0 matches for 'attention span'. try 'help' instead.",
+      "grep: this terminal doesn't have a filesystem, just vibes.",
+      'grep: I use ctrl+F like everyone else.',
+      'grep: pattern not found — much like a clean regex on the first try.',
+    ],
+  ),
+  _Egg(
+    ['touch'],
+    [
+      "touch: cannot create file — there's no filesystem, just this conversation.",
+      "touch: permission denied. some things are better left un-touch'd.",
+      'touch grass: now THAT command I can get behind.',
+      "touch: file exists — it's called this website, and I already built it.",
+      'touch: nothing to create here, only things to read.',
+    ],
+  ),
+  _Egg(
+    ['cd'],
+    [
+      "cd: nowhere to go — you're already exactly where you need to be.",
+      "cd: this isn't a filesystem, it's a conversation. try 'help'.",
+      "cd ..: relatable, but there's no parent directory here.",
+      "cd /: access denied, mostly because '/' doesn't exist in a browser tab.",
+      'cd: I got rid of directories years ago. ask me about monorepo tooling sometime.',
+    ],
+  ),
+  _Egg(
+    ['pwd'],
+    [
+      'pwd: you are here. right now. reading this.',
+      "pwd: somewhere between 'curious' and 'procrastinating'.",
+      'pwd: /home/visitor/probably-should-be-working',
+      "pwd: this is a website, not a filesystem — but you're in the terminal panel, if that helps.",
+    ],
+  ),
+  _Egg(
+    ['mkdir'],
+    [
+      'mkdir: permission denied — I already built enough folders for one lifetime.',
+      "mkdir: directory not created. this site's flat by design.",
+      "mkdir new_career: nice thought, but let's not, not today.",
+    ],
+  ),
+  _Egg(
+    ['rm'],
+    [
+      'rm: not today. this site has feelings.',
+      "rm -rf /: absolutely not — I've seen that story end badly enough times.",
+      'rm: permission denied. everything here is load-bearing.',
+      "rm: nice try. this isn't your monorepo's node_modules.",
+      'rm -rf: I like you, but not that much.',
+    ],
+    style: _EggStyle.error,
+  ),
+  _Egg(
+    ['vim', 'nvim'],
+    [
+      "vim: you're in. good luck getting out. (:wq, if you're new here.)",
+      "vim: opened a file that doesn't exist. classic Tuesday.",
+      "vim: entering insert mode... just kidding, there's nothing to insert.",
+      ':wq: that one you can actually type in real life. carry on.',
+    ],
+  ),
+  _Egg(
+    ['nano'],
+    [
+      "nano: opened a file that doesn't exist, in an editor that isn't running. ctrl+x to feel something.",
+      'nano: respect for skipping the vim exit joke entirely.',
+      'nano: saved nothing, changed nothing, felt something.',
+    ],
+  ),
+  _Egg(
+    ['emacs'],
+    [
+      'emacs: an excellent operating system, lacking only a decent terminal portfolio site.',
+      'emacs: M-x nothing-happens',
+      "emacs vs vim: not getting involved. I like my friendships intact.",
+    ],
+  ),
+  _Egg(
+    ['git'],
+    [
+      "git status: everything's committed. nothing to see here.",
+      'git blame: it was already like this when I got here.',
+      "git log: 'fix typo' × 47",
+      'git push --force: living dangerously, I see.',
+      "git: this site doesn't need version control, just vibes and Jaspr.",
+    ],
+  ),
+  _Egg(
+    ['npm', 'yarn', 'pnpm'],
+    [
+      'npm install: this site runs on Dart, not node_modules. no gigabytes were harmed.',
+      'npm audit: 1400 vulnerabilities found. luckily, not here.',
+      "yarn: cozy package manager, wrong ecosystem — try 'dart pub get'.",
+      'pnpm: efficient choice, wrong site.',
+    ],
+  ),
+  _Egg(
+    ['python', 'python3'],
+    [
+      'python: wrong snake, wrong charmer. this site speaks Dart.',
+      'python3: there are two Pythons and infinite opinions about which one you meant.',
+      'import antigravity: nice reference, wrong tab.',
+    ],
+  ),
+  _Egg(
+    ['curl', 'wget'],
+    [
+      "curl: nothing to fetch — you're already looking at the response.",
+      'curl -X GET https://this-site: 200 OK, obviously.',
+      'wget: downloading nothing, at full speed.',
+    ],
+  ),
+  _Egg(
+    ['ssh'],
+    [
+      'ssh: connecting to production... just kidding, there is no production, this is static-rendered.',
+      "ssh: permission denied (publickey, and also this isn't a server).",
+      "ssh root@localhost: bold of you to assume I'd give you root.",
+    ],
+    style: _EggStyle.error,
+  ),
+  _Egg(
+    ['man'],
+    [
+      "man: no manual entry for that. try 'help' — it's shorter anyway.",
+      'man: RTFM energy noted. there is no manual, just a website.',
+      "man grep: now you're just chaining jokes. I respect it.",
+    ],
+  ),
+  _Egg(
+    ['history'],
+    [
+      "history: mostly 'help', a few typos, and one very confident 'sudo rm -rf /'.",
+      'history: you can already scroll up for this, but I respect the effort.',
+      'history | grep regret: too many matches to display.',
+    ],
+  ),
+  _Egg(
+    ['exit', 'quit', 'logout'],
+    [
+      'exit: there is no escape. this is a single-page app.',
+      "logout: you're not logged in. you're just... here.",
+      'quit: the real exit is closing the tab, and even that feels rude.',
+      'exit: ctrl+w is right there, no judgment.',
+    ],
+    style: _EggStyle.accent,
+  ),
+  _Egg(
+    ['ps', 'top'],
+    [
+      'ps aux: coffee.exe (running), vim (still open since 2019), motivation (sleeping)',
+      'top: CPU 2%, procrastination 98%.',
+      "ps: 1 process found — you, reading a terminal joke instead of 'ls projects'.",
+    ],
+  ),
+  _Egg(
+    ['chmod', 'chown'],
+    [
+      'chmod 777: living dangerously. respect, but no.',
+      "chown: this isn't yours to own — but nice try.",
+      'chmod +x life: if only it worked that way.',
+    ],
+    style: _EggStyle.error,
+  ),
+  _Egg(
+    ['kill'],
+    [
+      "kill: cannot kill process 1 — it's a metaphor, and also init.",
+      "kill -9: brutal, and also unnecessary. nothing's running.",
+      "kill: there's nothing to end here except your patience.",
+    ],
+    style: _EggStyle.error,
+  ),
+  _Egg(
+    ['reboot', 'shutdown', 'poweroff'],
+    [
+      "shutdown: this isn't that kind of terminal — try refreshing the page.",
+      'reboot: rebooting... just kidding, everything here is already stateless.',
+      'poweroff: bold command for a static site.',
+    ],
+    style: _EggStyle.error,
+  ),
 ];
 
 /// Looks up a hidden joke response for [name], picking a random line from

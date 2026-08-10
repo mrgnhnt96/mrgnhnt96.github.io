@@ -233,50 +233,58 @@ class TerminalShellState extends State<TerminalShell> {
 
   @override
   Component build(BuildContext context) {
-    return div(classes: 'terminal', events: {'click': _focusInput}, [
-      div(classes: 'terminal__titlebar', [
-        div(classes: 'terminal__dots', [span([]), span([]), span([])]),
-        span(classes: 'terminal__title', [.text('morgan@personal — zsh')]),
-      ]),
-      div(key: _bodyKey, classes: 'terminal__body', [
-        for (final entry in _entries)
-          OutputLine(key: ValueKey(entry.keyId), delayMs: entry.delayMs, child: entry.content),
-      ]),
-      // Its own flex item, outside the scrollable body — stays pinned at
-      // the bottom instead of scrolling away with the history above it.
-      form(classes: 'terminal__prompt-row', events: {'submit': _handleFormSubmit}, [
-        span(classes: 'terminal__prompt-glyph', [.text('❯')]),
-        input<String>(
-          key: _inputKey,
-          type: .text,
-          value: _draft,
-          onInput: (v) => setState(() => _draft = v),
-          events: {'keydown': _handleKeyDown},
-          classes: 'terminal__input',
-          attributes: {
-            'autocomplete': 'off',
-            'autocapitalize': 'off',
-            'spellcheck': 'false',
-            'enterkeyhint': 'go',
-            'aria-label': 'terminal input',
-          },
+    return div(
+      classes: 'terminal',
+      events: {'click': _focusInput},
+      [
+        div(classes: 'terminal__titlebar', [
+          div(classes: 'terminal__dots', [span([]), span([]), span([])]),
+          span(classes: 'terminal__title', [.text('morgan@personal — zsh')]),
+        ]),
+        div(key: _bodyKey, classes: 'terminal__body', [
+          for (final entry in _entries)
+            OutputLine(key: ValueKey(entry.keyId), delayMs: entry.delayMs, child: entry.content),
+        ]),
+        // Its own flex item, outside the scrollable body — stays pinned at
+        // the bottom instead of scrolling away with the history above it.
+        form(
+          classes: 'terminal__prompt-row',
+          events: {'submit': _handleFormSubmit},
+          [
+            span(classes: 'terminal__prompt-glyph', [.text('❯')]),
+            input<String>(
+              key: _inputKey,
+              type: .text,
+              value: _draft,
+              onInput: (v) => setState(() => _draft = v),
+              events: {'keydown': _handleKeyDown},
+              classes: 'terminal__input',
+              attributes: {
+                'autocomplete': 'off',
+                'autocapitalize': 'off',
+                'spellcheck': 'false',
+                'enterkeyhint': 'go',
+                'aria-label': 'terminal input',
+              },
+            ),
+            if (_suggestion case final suggestion?)
+              span(
+                classes: 'terminal__suggestion',
+                events: {
+                  // Blocking mousedown (not click) keeps the browser from ever
+                  // blurring the input in the first place — otherwise it blurs
+                  // on press, then our own focus handler re-focuses it right
+                  // after, and that blur/refocus flickers the keyboard shut
+                  // and open again on mobile.
+                  'mousedown': (e) => e.preventDefault(),
+                  'click': (_) => _acceptSuggestion(),
+                },
+                [.text('${suggestion.substring(_draft.length)} ⇥')],
+              ),
+          ],
         ),
-        if (_suggestion case final suggestion?)
-          span(
-            classes: 'terminal__suggestion',
-            events: {
-              // Blocking mousedown (not click) keeps the browser from ever
-              // blurring the input in the first place — otherwise it blurs
-              // on press, then our own focus handler re-focuses it right
-              // after, and that blur/refocus flickers the keyboard shut
-              // and open again on mobile.
-              'mousedown': (e) => e.preventDefault(),
-              'click': (_) => _acceptSuggestion(),
-            },
-            [.text('${suggestion.substring(_draft.length)} ⇥')],
-          ),
-      ]),
-    ]);
+      ],
+    );
   }
 
   @css
@@ -305,11 +313,16 @@ class TerminalShellState extends State<TerminalShell> {
       css('&__titlebar').styles(
         display: .flex,
         padding: .symmetric(horizontal: 1.rem, vertical: 0.75.rem),
-        border: .only(bottom: BorderSide.solid(color: borderSubtle, width: 1.px)),
+        border: .only(
+          bottom: BorderSide.solid(color: borderSubtle, width: 1.px),
+        ),
         alignItems: .center,
         gap: Gap(column: 0.75.rem),
       ),
-      css('&__dots').styles(display: .flex, gap: Gap(column: 6.px)),
+      css('&__dots').styles(
+        display: .flex,
+        gap: Gap(column: 6.px),
+      ),
       css('&__dots span').styles(
         width: 11.px,
         height: 11.px,
@@ -348,7 +361,9 @@ class TerminalShellState extends State<TerminalShell> {
         display: .flex,
         margin: .zero,
         padding: .symmetric(horizontal: 1.25.rem, vertical: 0.9.rem),
-        border: .only(top: BorderSide.solid(color: borderSubtle, width: 1.px)),
+        border: .only(
+          top: BorderSide.solid(color: borderSubtle, width: 1.px),
+        ),
         alignItems: .center,
         gap: Gap(column: 0.6.rem),
       ),
@@ -375,7 +390,11 @@ class TerminalShellState extends State<TerminalShell> {
     ]),
     // Output typography, shared by command_registry.dart output builders.
     css('.term-line').styles(raw: {'overflow-wrap': 'break-word'}),
-    css('.term-line-cmd').styles(display: .flex, gap: Gap(column: 0.6.rem), color: textPrimary),
+    css('.term-line-cmd').styles(
+      display: .flex,
+      gap: Gap(column: 0.6.rem),
+      color: textPrimary,
+    ),
     css('.term-boot').styles(margin: .zero, color: accentCyan),
     css('.term-strong').styles(margin: .zero, color: textPrimary, fontWeight: .w700),
     css('.term-muted').styles(margin: .zero, color: textMuted),
@@ -391,8 +410,14 @@ class TerminalShellState extends State<TerminalShell> {
       ),
       css('&:hover').styles(color: textPrimary),
     ]),
-    css('.term-block').styles(margin: .only(top: 0.5.rem, bottom: 0.5.rem)),
-    css('.term-list').styles(padding: .only(left: 1.1.rem), margin: .only(top: 0.35.rem), color: textMuted),
+    css('.term-block').styles(
+      margin: .only(top: 0.5.rem, bottom: 0.5.rem),
+    ),
+    css('.term-list').styles(
+      padding: .only(left: 1.1.rem),
+      margin: .only(top: 0.35.rem),
+      color: textMuted,
+    ),
     css('.term-list li').styles(margin: .only(bottom: 0.25.rem)),
     css('.term-ls-row').styles(
       display: .flex,
@@ -407,7 +432,11 @@ class TerminalShellState extends State<TerminalShell> {
       gap: Gap(row: 0.3.rem),
     ),
     css('.term-help-row', [
-      css('&').styles(display: .flex, flexWrap: .wrap, gap: Gap(column: 1.rem)),
+      css('&').styles(
+        display: .flex,
+        flexWrap: .wrap,
+        gap: Gap(column: 1.rem),
+      ),
       css('& > span:first-child').styles(minWidth: 6.rem),
     ]),
     css.media(MediaQuery.screen(maxWidth: 640.px), [
@@ -434,7 +463,9 @@ class TerminalShellState extends State<TerminalShell> {
         padding: .all(0.9.rem),
         fontSize: 0.85.rem,
       ),
-      css('.terminal__prompt-row').styles(padding: .symmetric(horizontal: 0.9.rem, vertical: 0.7.rem)),
+      css('.terminal__prompt-row').styles(
+        padding: .symmetric(horizontal: 0.9.rem, vertical: 0.7.rem),
+      ),
       // The panel now runs edge-to-edge, so the fixed mode toggle sits
       // right on top of the titlebar — drop the decorative title text
       // rather than have it collide with (or hide behind) the toggle.

@@ -162,7 +162,9 @@ class HomeState extends State<Home> {
     // margins that look intentional on desktop just read as wasted space
     // once the panel is nearly as wide as the viewport anyway.
     css.media(MediaQuery.screen(maxWidth: 640.px), [
-      css('.home').styles(padding: .symmetric(vertical: 0.5.rem, horizontal: 0.4.rem)),
+      css('.home').styles(
+        padding: .symmetric(vertical: 0.5.rem, horizontal: 0.4.rem),
+      ),
       // Touch-only lock (see '_syncScrollLock') — desktop keeps normal page
       // scroll as a fallback, since it never had the keyboard-avoidance
       // problem this works around.

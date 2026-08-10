@@ -97,19 +97,37 @@ class AmbientBackground extends StatelessComponent {
       ),
     ]),
     css.keyframes('aurora-drift-a', {
-      '0%': Styles(transform: .combine([.translate(x: (-4).percent, y: (-8).percent), .scale(1)])),
-      '50%': Styles(transform: .combine([.translate(x: 4.percent, y: 6.percent), .scale(1.15)])),
-      '100%': Styles(transform: .combine([.translate(x: (-4).percent, y: (-8).percent), .scale(1)])),
+      '0%': Styles(
+        transform: .combine([.translate(x: (-4).percent, y: (-8).percent), .scale(1)]),
+      ),
+      '50%': Styles(
+        transform: .combine([.translate(x: 4.percent, y: 6.percent), .scale(1.15)]),
+      ),
+      '100%': Styles(
+        transform: .combine([.translate(x: (-4).percent, y: (-8).percent), .scale(1)]),
+      ),
     }),
     css.keyframes('aurora-drift-b', {
-      '0%': Styles(transform: .combine([.translate(x: 6.percent, y: 4.percent), .scale(1.1)])),
-      '50%': Styles(transform: .combine([.translate(x: (-6).percent, y: (-5).percent), .scale(0.95)])),
-      '100%': Styles(transform: .combine([.translate(x: 6.percent, y: 4.percent), .scale(1.1)])),
+      '0%': Styles(
+        transform: .combine([.translate(x: 6.percent, y: 4.percent), .scale(1.1)]),
+      ),
+      '50%': Styles(
+        transform: .combine([.translate(x: (-6).percent, y: (-5).percent), .scale(0.95)]),
+      ),
+      '100%': Styles(
+        transform: .combine([.translate(x: 6.percent, y: 4.percent), .scale(1.1)]),
+      ),
     }),
     css.keyframes('aurora-drift-c', {
-      '0%': Styles(transform: .translate(x: 0.percent, y: 0.percent)),
-      '50%': Styles(transform: .translate(x: (-6).percent, y: 8.percent)),
-      '100%': Styles(transform: .translate(x: 0.percent, y: 0.percent)),
+      '0%': Styles(
+        transform: .translate(x: 0.percent, y: 0.percent),
+      ),
+      '50%': Styles(
+        transform: .translate(x: (-6).percent, y: 8.percent),
+      ),
+      '100%': Styles(
+        transform: .translate(x: 0.percent, y: 0.percent),
+      ),
     }),
     // The terminal panel covers nearly the whole screen on mobile, leaving
     // almost no margin for the aurora to show in, so the color has to read
