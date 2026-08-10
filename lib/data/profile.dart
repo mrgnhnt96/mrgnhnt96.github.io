@@ -8,8 +8,8 @@ abstract final class Profile {
       'Staff software engineer with 8+ years building high-quality mobile apps, developer '
       'tools, and backend systems. Specialized in Flutter and Dart, with a focus on '
       'performance, developer experience, and clean architecture. Most of what I build outside '
-      'the day job exists because some corner of the Dart ecosystem was missing it — monorepo '
-      'tooling, git hooks, a backend framework, a pile of code generators. If a tool gets in a '
+      'the day job exists because some corner of the Dart ecosystem was missing it — two backend '
+      'frameworks (Revali and Zonai), monorepo tooling, git hooks, a pile of code generators. If a tool gets in a '
       "developer's way, I'd rather fix the tool than work around it.";
 
   static const howIWork =
@@ -41,7 +41,7 @@ class SkillGroup {
 
 const skillGroups = <SkillGroup>[
   SkillGroup(label: 'Languages', items: ['Dart', 'TypeScript', 'JavaScript', 'Python']),
-  SkillGroup(label: 'Frameworks', items: ['Flutter', 'Jaspr', 'Nocterm', 'Revali', 'NestJS']),
+  SkillGroup(label: 'Frameworks', items: ['Flutter', 'Jaspr', 'Nocterm', 'Revali', 'Zonai', 'NestJS']),
   SkillGroup(label: 'Platforms', items: ['iOS', 'Android', 'macOS', 'Linux', 'Windows']),
   SkillGroup(label: 'Architecture', items: ['Clean Architecture', 'BLoC', 'Provider', 'Scoped Deps', 'Get It', 'TDD']),
 ];
