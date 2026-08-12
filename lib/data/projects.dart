@@ -81,7 +81,10 @@ const projects = <ProjectEntry>[
     url: 'https://github.com/mrgnhnt96/zonai',
     docsUrl: 'https://zonai.dev',
     featured: true,
-    status: '$zonaiVersion · Published on pub.dev · docs at zonai.dev',
+    // Zonai itself ships as a standalone executable from zonai.dev rather
+    // than as a pub.dev package — only its schema and client libraries are
+    // published there.
+    status: '$zonaiVersion · Executable at zonai.dev · zonai_schema + zonai_client on pub.dev',
     highlights: [
       'Live query streams: clients subscribe to a query and get pushed updates as rows change.',
       'Schema-first — declare your tables in Dart and get CRUD, auth flows, SQL, and a typed client generated at compile time.',
