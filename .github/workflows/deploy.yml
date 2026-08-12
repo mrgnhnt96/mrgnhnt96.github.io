@@ -30,6 +30,102 @@ jobs:
         run: |
           tag=$(gh api repos/mrgnhnt96/zonai/releases/latest --jq .tag_name)
           echo "const zonaiVersion = '$tag';" > lib/data/zonai_version.dart
+      # The download total is headline proof on the site, so it's pulled
+      # fresh rather than hand-maintained. Rewrites only the two const
+      # lines, leaving the doc comment and compactCount() intact.
+      - name: Pull pub.dev download totals
+        run: |
+          python3 - <<'PY'
+          import json, re, urllib.request
+
+          PACKAGES = """
+          change_case go_router_paths pub_version_plus sip_cli hooksman
+          equatable_gen equatable_annotations scoped_deps generator_test
+          import_ozempic revali revali_annotations revali_core revali_client
+          revali_docker revali_client_gen revali_construct revali_router
+          revali_swagger autoequal brick_oven enum_assist
+          zonai_schema zonai_client
+          """.split()
+
+          total, counted = 0, 0
+          for name in PACKAGES:
+              try:
+                  with urllib.request.urlopen(
+                      f"https://pub.dev/api/packages/{name}/score", timeout=20
+                  ) as response:
+                      total += json.load(response).get("downloadCount30Days") or 0
+                      counted += 1
+              except Exception as error:
+                  print(f"skipped {name}: {error}")
+
+          # A partial sum would silently understate the headline number, so
+          # a failed fetch leaves the committed fallback in place instead.
+          # Deliberately not an error: pub.dev having a bad minute shouldn't
+          # take the whole deploy down when a good fallback is committed.
+          if counted < len(PACKAGES):
+              print(f"only {counted}/{len(PACKAGES)} fetched; keeping committed fallback")
+              raise SystemExit(0)
+
+          path = "lib/data/pub_stats.dart"
+          source = open(path).read()
+          source = re.sub(r"const pubDownloads30Days = \d+;", f"const pubDownloads30Days = {total};", source)
+          source = re.sub(r"const pubPackageCount = \d+;", f"const pubPackageCount = {counted};", source)
+          open(path, "w").write(source)
+          print(f"pubDownloads30Days = {total:,} across {counted} packages")
+          PY
+      # 'contributionsCollection' is a rolling 12-month window, so these
+      # numbers change every day whether or not anything is committed here.
+      - name: Pull GitHub contribution totals
+        env:
+          # Queried by login rather than as 'viewer': the default Actions
+          # token authenticates as github-actions[bot], so 'viewer' would
+          # report the bot's activity, not Morgan's. STATS_TOKEN (a PAT with
+          # 'read:user') is preferred when present, since an anonymous view
+          # of the calendar omits private-repo contributions.
+          GH_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          query='{ user(login: "mrgnhnt96") {
+            repositories(ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) { totalCount }
+            contributionsCollection {
+              totalCommitContributions
+              totalPullRequestReviewContributions
+              contributionCalendar { totalContributions }
+            }
+          } }'
+          # '|| true' so an API hiccup leaves the committed fallbacks in
+          # place instead of taking the whole deploy down with it.
+          json=$(gh api graphql -f query="$query" 2>/dev/null || true)
+          if [ -z "$json" ]; then
+            echo "GitHub stats fetch failed; keeping committed fallbacks"
+            exit 0
+          fi
+          python3 - "$json" <<'PY'
+          import json, re, sys
+
+          user = json.loads(sys.argv[1])["data"]["user"]
+          contributions = user["contributionsCollection"]
+          values = {
+              "ghContributionsLastYear": contributions["contributionCalendar"]["totalContributions"],
+              "ghCommitsLastYear": contributions["totalCommitContributions"],
+              "ghReviewsLastYear": contributions["totalPullRequestReviewContributions"],
+              "ghPublicRepos": user["repositories"]["totalCount"],
+          }
+          # A zero means the token couldn't see the account's activity.
+          # Keep the committed fallbacks rather than publishing a '0', and
+          # exit clean so a degraded read never fails the deploy.
+          if not all(values.values()):
+              print(f"got a zero in {values}; keeping committed fallbacks")
+              raise SystemExit(0)
+
+          path = "lib/data/github_stats.dart"
+          source = open(path).read()
+          for name, value in values.items():
+              source = re.sub(rf"const {name} = \d+;", f"const {name} = {value};", source)
+          open(path, "w").write(source)
+          print(values)
+          PY
+
       - run: dart pub global activate jaspr_cli
       - run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
       - run: jaspr build --verbose
