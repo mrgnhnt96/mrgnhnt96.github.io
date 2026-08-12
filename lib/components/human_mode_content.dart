@@ -297,7 +297,9 @@ class HumanModeContent extends StatelessComponent {
       css('&__core-skill').styles(
         display: .flex,
         padding: .symmetric(horizontal: 0.9.rem, vertical: 0.7.rem),
-        border: .only(left: BorderSide.solid(color: accentViolet, width: 2.px)),
+        border: .only(
+          left: BorderSide.solid(color: accentViolet, width: 2.px),
+        ),
         radius: .all(.circular(6.px)),
         flexWrap: .wrap,
         justifyContent: .spaceBetween,

@@ -93,7 +93,8 @@ final openSourceMetrics = <Metric>[
   Metric(
     value: _thousands(ghContributionsLastYear),
     label: 'contributions this year',
-    detail: '${_thousands(ghCommitsLastYear)} commits and ${_thousands(ghReviewsLastYear)} code reviews '
+    detail:
+        '${_thousands(ghCommitsLastYear)} commits and ${_thousands(ghReviewsLastYear)} code reviews '
         'in the last 12 months, pulled from the GitHub API on every build.',
   ),
   const Metric(
