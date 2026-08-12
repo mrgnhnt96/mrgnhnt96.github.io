@@ -10,6 +10,7 @@ import 'package:site/components/terminal/terminal_shell.dart'
     as _terminal_shell;
 import 'package:site/components/ambient_background.dart' as _ambient_background;
 import 'package:site/components/human_mode_content.dart' as _human_mode_content;
+import 'package:site/components/metrics_band.dart' as _metrics_band;
 import 'package:site/pages/home.dart' as _home;
 import 'package:site/pages/resume.dart' as _resume;
 
@@ -36,6 +37,7 @@ ServerOptions get defaultServerOptions => ServerOptions(
     ..._output_line.outputLineStyles,
     ..._ambient_background.AmbientBackground.styles,
     ..._human_mode_content.HumanModeContent.styles,
+    ..._metrics_band.MetricsBand.styles,
     ..._terminal_shell.TerminalShellState.styles,
     ..._home.HomeState.styles,
     ..._home.ModeToggle.styles,

@@ -4,6 +4,7 @@ import 'package:universal_web/web.dart' as web;
 
 import '../components/ambient_background.dart';
 import '../components/human_mode_content.dart';
+import '../components/metrics_band.dart';
 import '../components/terminal/command_registry.dart';
 import '../components/terminal/terminal_shell.dart';
 import '../theme.dart';
@@ -98,6 +99,9 @@ class HomeState extends State<Home> {
     return div(classes: classes, [
       const AmbientBackground(),
       ModeToggle(mode: _mode, onToggle: _setMode),
+      // Terminal mode only — human mode renders its own hero and a fuller
+      // metrics grid, so showing the band there would just say it twice.
+      if (_mode == TerminalMode.terminal) const MetricsBand(),
       div(classes: 'home__stage', [
         if (_mode == TerminalMode.terminal)
           div(key: const ValueKey('terminal-pane'), classes: paneClasses, [
@@ -124,15 +128,32 @@ class HomeState extends State<Home> {
         minHeight: Unit.expression('100dvh'),
         padding: .symmetric(vertical: 2.rem, horizontal: 1.rem),
         boxSizing: .borderBox,
+        // Column, so the metrics band can stack above the stage. Centering
+        // still reads the same: 'align' now centers horizontally and
+        // 'justify' vertically, which is what both were doing before.
+        flexDirection: .column,
         justifyContent: .center,
         alignItems: .center,
       ),
-      css('&__stage').styles(display: .flex, width: 100.percent, justifyContent: .center),
+      // Deliberately *not* flex-grow on desktop: the stage shrink-wraps the
+      // terminal so '.home' can center the band-plus-terminal group as one
+      // block. Growing here would pin the group to the top and leave the
+      // slack below it. Mobile overrides this (see the media query), where
+      // the terminal does want every pixel the band leaves.
+      css('&__stage').styles(
+        display: .flex,
+        width: 100.percent,
+        justifyContent: .center,
+      ),
       css('&__pane', [
         css('&').styles(
           display: .flex,
           position: .relative(),
           width: 100.percent,
+          // Fills the stage so the mobile terminal can size itself to '100%'
+          // of the space left over after the band, rather than hard-coding
+          // the band's height into its own 'dvh' math.
+          height: 100.percent,
           justifyContent: .center,
           // Sit in the animation's 0% pose by default (see '_paneRevealed')
           // so adding '&--in' has something to animate *from* instead of a
@@ -169,6 +190,12 @@ class HomeState extends State<Home> {
       // scroll as a fallback, since it never had the keyboard-avoidance
       // problem this works around.
       css('.home--locked').styles(height: Unit.expression('100dvh'), overflow: .hidden),
+      // Here (unlike desktop) the terminal should claim every pixel the band
+      // leaves, so the stage grows and '.terminal' measures its '100%'
+      // against it. 'min-height: 0' is required: flex items default to
+      // 'min-height: auto' and would otherwise refuse to shrink below their
+      // content, overflowing the locked viewport instead of fitting it.
+      css('.home__stage').styles(minHeight: 0.px, flex: .grow(1)),
     ]),
   ];
 }

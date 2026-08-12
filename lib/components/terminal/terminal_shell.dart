@@ -456,10 +456,14 @@ class TerminalShellState extends State<TerminalShell> {
     css.media(MediaQuery.screen(maxWidth: 640.px), [
       // A fixed height (not just a cap) so the window always fills the
       // screen like a real terminal, instead of shrinking to whatever
-      // little content is in it. Matches '.home's mobile padding.
+      // little content is in it. '100%' rather than a 'dvh' calc because
+      // the metrics band now sits above this inside '.home' — the flex
+      // parent ('.home__stage') already subtracts the band's height, so
+      // measuring against it keeps the two from having to agree on a
+      // hard-coded number.
       css('.terminal').styles(
-        height: Unit.expression('calc(100dvh - 1rem)'),
-        maxHeight: Unit.expression('calc(100dvh - 1rem)'),
+        height: 100.percent,
+        maxHeight: 100.percent,
         radius: .all(.circular(0.px)),
         // The panel covers nearly the whole screen on mobile, so the
         // ambient aurora has almost no margin left to show through — let
