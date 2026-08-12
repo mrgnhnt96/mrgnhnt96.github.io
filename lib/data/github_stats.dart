@@ -7,8 +7,8 @@
 ///
 /// `contributionsCollection` is a rolling one-year window, so these move on
 /// their own — which is exactly why they're pulled rather than typed in.
-const ghContributionsLastYear = 5516;
-const ghCommitsLastYear = 3461;
+const ghContributionsLastYear = 5521;
+const ghCommitsLastYear = 3463;
 const ghReviewsLastYear = 1497;
 
 /// Public, non-fork repositories owned by the account — the ones a visitor

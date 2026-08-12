@@ -1,18 +1,21 @@
 /// Lines of code written, counted rather than estimated.
 ///
 /// Measured with `scc` over shallow clones of all 94 non-fork repositories
-/// on the account. The count is deliberately conservative — it is
-/// hand-written source only, and excludes:
+/// on the account. Counts real source authored in this account's projects,
+/// including generated Dart (`.g.dart`, `.freezed.dart`) — that code is
+/// produced by builders configured and largely written here, so it's part
+/// of the body of work rather than someone else's.
 ///
-///  - generated Dart (`.g.dart`, `.freezed.dart`, `.mocks.dart`, …)
+/// Still excluded, because none of it was authored here at all:
+///
 ///  - built output (doc-site HTML, compiled `.dart.js`, `build/`, `dist/`)
-///  - vendored code (`node_modules/`, `vendor/`, `Pods/`, editor plugins)
+///  - vendored third-party code (`node_modules/`, `vendor/`, `Pods/`,
+///    editor plugins, a checked-in copy of Vue)
 ///  - lock files, search indexes, and data blobs
 ///  - config and prose (YAML, JSON, Markdown, licenses)
 ///
-/// Counting everything would have yielded ~2.58M. The point of the number
-/// is that it holds up when somebody asks how it was derived, so the
-/// generated 1.03M is left out.
+/// Counting those too would reach ~2.58M, but the number needs to hold up
+/// when somebody asks how it was derived.
 ///
 /// Not auto-pulled like [pub_stats] or [github_stats]: recounting means
 /// cloning ~0.7GB of repositories, which is far too much work to do on
@@ -20,9 +23,9 @@
 /// hand when it drifts enough to matter.
 library;
 
-/// Hand-written source across every non-fork repo on the account.
-/// 459,792 of these are Dart.
-const personalCodeLines = 554324;
+/// Source across every non-fork repo on the account.
+/// 938,142 of these are Dart.
+const personalCodeLines = 1032674;
 
 /// The Couchsurfing Flutter app, architected from an empty repo.
 const couchsurfingCodeLines = 1300000;

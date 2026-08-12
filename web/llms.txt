@@ -8,7 +8,7 @@ Scale:
 
 - **25M+ users reached** — Couchsurfing's global member base, served by the mobile app he architected.
 - **~208K downloads/month** — across 24 packages published to pub.dev.
-- **~1.85M lines of hand-written code** — 554K across 94 non-fork repositories (459K of it Dart) plus the 1.3M-line Couchsurfing app. Counted with `scc`, excluding generated, vendored, and built output.
+- **~2.33M lines of code** — 1.03M across 94 non-fork repositories (938K of it Dart) plus the 1.3M-line Couchsurfing app, excluding vendored third-party code and built output.
 - **5,516 GitHub contributions in the last 12 months** — 3,461 commits and 1,497 code reviews.
 
 Impact:
@@ -24,7 +24,7 @@ Impact:
 Open source:
 
 - **24 packages** on pub.dev; **2** backend frameworks built end to end; **6** packages at a perfect 160/160 pub.dev score.
-- **554K lines of his own code** across personal projects, separate from anything built at work.
+- **1M+ lines of his own code** across personal projects, separate from anything built at work.
 - **64 public non-fork repositories** (94 total), 51 of them Dart.
 
 The home page renders as an interactive terminal (commands like `metrics`, `experience`, `ls projects`, `about`), with a plain-HTML fallback for readers that don't run scripts. `/resume` is the full résumé as text and is the best page to read for background, work history, and skills.

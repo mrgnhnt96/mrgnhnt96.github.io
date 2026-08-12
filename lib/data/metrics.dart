@@ -35,8 +35,8 @@ final headlineMetrics = <Metric>[
     value: compactCount(totalCodeLines),
     label: 'lines written',
     detail:
-        'Hand-written source across 94 non-fork repositories plus the Couchsurfing app — '
-        'counted with scc, excluding generated, vendored, and built output.',
+        'Source across 94 non-fork repositories plus the Couchsurfing app, excluding vendored '
+        'third-party code and built output.',
   ),
   Metric(
     value: _thousands(ghContributionsLastYear),
@@ -108,7 +108,7 @@ final openSourceMetrics = <Metric>[
   Metric(
     value: compactCount(personalCodeLines),
     label: 'lines of my own code',
-    detail: 'Across my own projects alone — 459K of it Dart — separate from anything built at work.',
+    detail: 'Across my own projects alone — 938K of it Dart — separate from anything built at work.',
   ),
   const Metric(
     value: '$ghPublicRepos',
