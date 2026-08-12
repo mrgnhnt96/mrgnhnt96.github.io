@@ -83,7 +83,7 @@ const projects = <ProjectEntry>[
     featured: true,
     status: '$zonaiVersion · Published on pub.dev · docs at zonai.dev',
     highlights: [
-      'Live query streams: clients subscribe to a query and get pushed updates as rows change — no polling loop to write.',
+      'Live query streams: clients subscribe to a query and get pushed updates as rows change.',
       'Schema-first — declare your tables in Dart and get CRUD, auth flows, SQL, and a typed client generated at compile time.',
       'Auth is built in: JWT sessions, OTP, magic links, external identity providers, and per-row access rules.',
       "Built on Revali's router, so the two frameworks share a foundation — Zonai is what Revali looks like with the batteries included.",
