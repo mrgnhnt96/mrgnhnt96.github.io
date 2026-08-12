@@ -47,8 +47,10 @@ void main() {
         // Open Graph / Twitter card — controls how link previews render in
         // Messages, Slack, social apps, etc. Without og:image, previews fall
         // back to a bare title + tiny favicon.
+        // `og:url` and `rel=canonical` are per-route and live in `app.dart` —
+        // a second copy here would win on every page, since scrapers read the
+        // first matching tag and the shared head renders first.
         meta(attributes: {'property': 'og:type'}, content: 'website'),
-        meta(attributes: {'property': 'og:url'}, content: 'https://mrgnhnt.com/'),
         meta(attributes: {'property': 'og:site_name'}, content: 'Morgan Hunt'),
         meta(attributes: {'property': 'og:title'}, content: 'Morgan Hunt — Staff Software Engineer'),
         meta(
