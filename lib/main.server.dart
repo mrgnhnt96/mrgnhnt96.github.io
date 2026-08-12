@@ -10,6 +10,7 @@ import 'package:jaspr/server.dart';
 
 // Imports the [App] component.
 import 'app.dart';
+import 'data/pub_stats.dart';
 import 'theme.dart';
 
 // This file is generated automatically by Jaspr, do not remove or edit.
@@ -34,8 +35,12 @@ void main() {
       // causing the whole page to "scroll" and reveal dead space on mobile.
       viewport: 'width=device-width, initial-scale=1.0, interactive-widget=resizes-content',
       meta: {
+        // The search-result snippet. Leads with the numbers for the same
+        // reason the page itself does — this is often the only line a
+        // recruiter reads before deciding whether to click.
         'description':
-            'Personal site of Morgan Hunt, a Staff Software Engineer building tools for the Dart & Flutter ecosystem.',
+            'Staff Software Engineer. Architected a 1.3M-line Flutter app serving 25M+ users, leads a team '
+            'of 9, and maintains $pubPackageCount Dart packages with ${compactCount(pubDownloads30Days)} downloads a month.',
         'theme-color': '#07080c',
       },
       head: [
@@ -55,7 +60,9 @@ void main() {
         meta(attributes: {'property': 'og:title'}, content: 'Morgan Hunt — Staff Software Engineer'),
         meta(
           attributes: {'property': 'og:description'},
-          content: "Building the Dart ecosystem's missing tools — one framework at a time.",
+          content:
+              'A 1.3M-line Flutter app serving 25M+ users. A team of 9. '
+              '$pubPackageCount Dart packages, ${compactCount(pubDownloads30Days)} downloads a month.',
         ),
         meta(attributes: {'property': 'og:image'}, content: 'https://mrgnhnt.com/og-image.png'),
         meta(attributes: {'property': 'og:image:width'}, content: '1200'),
@@ -65,7 +72,9 @@ void main() {
         meta(attributes: {'name': 'twitter:title'}, content: 'Morgan Hunt — Staff Software Engineer'),
         meta(
           attributes: {'name': 'twitter:description'},
-          content: "Building the Dart ecosystem's missing tools — one framework at a time.",
+          content:
+              'A 1.3M-line Flutter app serving 25M+ users. A team of 9. '
+              '$pubPackageCount Dart packages, ${compactCount(pubDownloads30Days)} downloads a month.',
         ),
         meta(attributes: {'name': 'twitter:image'}, content: 'https://mrgnhnt.com/og-image.png'),
       ],
