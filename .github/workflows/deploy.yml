@@ -79,10 +79,14 @@ jobs:
         env:
           # Queried by login rather than as 'viewer': the default Actions
           # token authenticates as github-actions[bot], so 'viewer' would
-          # report the bot's activity, not Morgan's. STATS_TOKEN (a PAT with
-          # 'read:user') is preferred when present, since an anonymous view
-          # of the calendar omits private-repo contributions.
-          GH_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+          # report the bot's activity, not this account's.
+          #
+          # The default token is enough — no PAT needed. "Include private
+          # contributions on my profile" is enabled, so private-repo work
+          # already lands in the public calendar total: an anonymous read of
+          # /users/mrgnhnt96/contributions returns the same figure the
+          # authenticated API does.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           query='{ user(login: "mrgnhnt96") {
