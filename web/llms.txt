@@ -1,0 +1,34 @@
+# Morgan Hunt
+
+> Staff Software Engineer in Mesa, AZ. 8+ years building mobile apps, developer tools, and backend systems — specialized in Flutter and Dart. Author of Revali and Zonai, two Dart backend frameworks. Building the Dart ecosystem's missing tools, one framework at a time.
+
+The home page renders as an interactive terminal (commands like `projects`, `tools`, `games`, `resume`), with a plain-HTML fallback for readers that don't run scripts. `/resume` is the full résumé as text and is the best page to read for background, work history, and skills.
+
+Contact: mrgnhnt96@gmail.com · [GitHub](https://github.com/mrgnhnt96) · [LinkedIn](https://www.linkedin.com/in/mrgnhnt96/) · [X](https://x.com/mrgnhnt96_dev)
+
+## Pages
+
+- [Home](https://mrgnhnt.com/): Bio, projects, and contact info, as an interactive terminal.
+- [Résumé](https://mrgnhnt.com/resume/): Work history, skills, and experience in full.
+- [Résumé (PDF)](https://mrgnhnt.com/resume.pdf): The same résumé as a downloadable PDF.
+
+## Flagship frameworks
+
+- [Revali](https://github.com/mrgnhnt96/revali): A Dart backend framework inspired by NestJS — decorators, DI, and generated routing. Docs at [revali.dev](https://revali.dev).
+- [Zonai](https://github.com/mrgnhnt96/zonai): A batteries-included Dart backend framework — schema-first auth, typed database layer, live query streams, storage, cron, and access rules. Built on Revali's router. Docs at [zonai.dev](https://zonai.dev).
+
+## Other projects
+
+- [sip](https://github.com/mrgnhnt96/sip): A CLI for Dart mono-repos — run scripts, tests, and pub commands across every package.
+- [hooksman](https://github.com/mrgnhnt96/hooksman): Git hooks and tasks defined as Dart scripts or shell commands — a Dart-native Husky.
+- [equatable_gen](https://github.com/mrgnhnt96/equatable_gen): Auto-generates `props` getters for classes using the equatable package.
+- [import_ozempic](https://github.com/mrgnhnt96/import_ozempic): Replaces Dart barrel imports with direct source imports.
+- [change_case](https://github.com/mrgnhnt96/change_case): Convert strings between camelCase, snake_case, kebab-case, and more.
+- [contacts](https://github.com/mrgnhnt96/contacts): An iMessage app and companion iOS app for searching contacts by any field and sharing them as vCards.
+- [minesweeper](https://github.com/mrgnhnt96/minesweeper): Classic Minesweeper, recreated for the command line.
+- [snake](https://github.com/mrgnhnt96/snake): Classic Snake, recreated for the command line.
+- [gun_fu](https://github.com/mrgnhnt96/gun_fu): A terminal game about a gunfight.
+
+## Optional
+
+- [oat](https://mrgnhnt.com/): A macOS app for managing shell aliases, functions, env vars, and PATH entries — no public repo yet.
