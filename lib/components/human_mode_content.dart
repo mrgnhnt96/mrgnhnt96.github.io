@@ -2,9 +2,24 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 import '../data/experience.dart';
+import '../data/metrics.dart';
 import '../data/profile.dart';
 import '../data/projects.dart';
 import '../theme.dart';
+
+/// One grid of [Metric] cards. [lead] gives them the accent treatment that
+/// marks the headline four apart from the supporting groups below.
+Component _metricGrid(List<Metric> metrics, {bool lead = false}) {
+  final cardClasses = lead ? 'resume__metric resume__metric--lead' : 'resume__metric';
+  return div(classes: 'resume__metrics', [
+    for (final metric in metrics)
+      div(classes: cardClasses, [
+        span(classes: 'resume__metric-value', [.text(metric.value)]),
+        span(classes: 'resume__metric-label', [.text(metric.label)]),
+        if (metric.detail != null) span(classes: 'resume__metric-detail', [.text(metric.detail!)]),
+      ]),
+  ]);
+}
 
 /// The conventional, readable resume-style layout — "Human Mode".
 ///
@@ -36,30 +51,26 @@ class HumanModeContent extends StatelessComponent {
           a(href: '/resume.pdf', download: 'Morgan-Hunt-Resume.pdf', [.text('Résumé (PDF)')]),
         ]),
       ]),
+      // The numbers come before the prose deliberately — they're the part
+      // that survives a ten-second skim.
+      section(classes: 'resume__section', [
+        h2([.text('// by the numbers')]),
+        _metricGrid(headlineMetrics, lead: true),
+      ]),
+      section(classes: 'resume__section', [
+        h2([.text('// impact')]),
+        _metricGrid(impactMetrics),
+      ]),
+      section(classes: 'resume__section', [
+        h2([.text('// open source')]),
+        _metricGrid(openSourceMetrics),
+      ]),
       section(classes: 'resume__section', [
         h2([.text('// summary')]),
         p([.text(Profile.summary)]),
       ]),
-      section(classes: 'resume__section', [
-        h2([.text('// how I work')]),
-        p([.text(Profile.howIWork)]),
-      ]),
-      section(classes: 'resume__section', [
-        h2([.text('// experience')]),
-        div(classes: 'resume__cards', [
-          for (final job in experience)
-            article(classes: 'resume__card', [
-              div(classes: 'resume__card-head', [
-                h3([.text(job.company)]),
-                span(classes: 'resume__period', [.text(job.period)]),
-              ]),
-              p(classes: 'resume__card-role', [.text(job.role)]),
-              ul([
-                for (final bullet in job.bullets) li([.text(bullet)]),
-              ]),
-            ]),
-        ]),
-      ]),
+      // Two shipped backend frameworks is the least-common thing on this
+      // page, so it leads the body rather than sitting under the jobs.
       section(classes: 'resume__section', [
         h2([.text('// frameworks')]),
         div(classes: 'resume__cards', [
@@ -84,6 +95,23 @@ class HumanModeContent extends StatelessComponent {
         ]),
       ]),
       section(classes: 'resume__section', [
+        h2([.text('// experience')]),
+        div(classes: 'resume__cards', [
+          for (final job in experience)
+            article(classes: 'resume__card', [
+              div(classes: 'resume__card-head', [
+                h3([.text(job.company)]),
+                span(classes: 'resume__period', [.text(job.period)]),
+              ]),
+              p(classes: 'resume__card-role', [.text(job.role)]),
+              p(classes: 'resume__card-headline', [.text(job.headline)]),
+              ul([
+                for (final bullet in job.bullets) li([.text(bullet)]),
+              ]),
+            ]),
+        ]),
+      ]),
+      section(classes: 'resume__section', [
         h2([.text('// other projects')]),
         div(classes: 'resume__cards', [
           for (final project in rest)
@@ -99,7 +127,17 @@ class HumanModeContent extends StatelessComponent {
         ]),
       ]),
       section(classes: 'resume__section', [
-        h2([.text('// skills')]),
+        h2([.text('// core skills')]),
+        div(classes: 'resume__core-skills', [
+          for (final skill in coreSkills)
+            div(classes: 'resume__core-skill', [
+              span(classes: 'resume__core-skill-name', [.text(skill.name)]),
+              span(classes: 'resume__core-skill-proof', [.text(skill.proof)]),
+            ]),
+        ]),
+      ]),
+      section(classes: 'resume__section', [
+        h2([.text('// full stack')]),
         div(classes: 'resume__skills', [
           for (final group in skillGroups)
             div(classes: 'resume__skill-group', [
@@ -206,6 +244,72 @@ class HumanModeContent extends StatelessComponent {
         flexDirection: .column,
         gap: Gap(row: 1.rem),
       ),
+      // auto-fit rather than a fixed column count so the eight metrics
+      // reflow from two-up to one-up on their own. The 260px floor lands on
+      // two columns inside this page's 760px measure — wide enough that
+      // each card's detail sentence gets a readable line length instead of
+      // wrapping every three words.
+      css('&__metrics').styles(
+        display: .grid,
+        gap: Gap(row: 0.75.rem, column: 0.75.rem),
+        raw: {'grid-template-columns': 'repeat(auto-fit, minmax(260px, 1fr))'},
+      ),
+      css('&__metric', [
+        css('&').styles(
+          display: .flex,
+          padding: .all(0.9.rem),
+          border: .all(color: borderSubtle, width: 1.px),
+          radius: .all(.circular(10.px)),
+          flexDirection: .column,
+          gap: Gap(row: 0.15.rem),
+          backgroundColor: bgPanelSoft,
+        ),
+        // The headline four get the accent treatment so they still read as
+        // the primary numbers even sharing a grid with the supporting four.
+        css('&--lead').styles(
+          border: .all(color: .rgba(94, 234, 212, 0.3), width: 1.px),
+          raw: {'background-image': 'linear-gradient(150deg, rgba(94, 234, 212, 0.08), rgba(167, 139, 250, 0.06))'},
+        ),
+      ]),
+      css('&__metric-value').styles(
+        color: accentCyan,
+        fontSize: 1.55.rem,
+        fontWeight: .bold,
+        lineHeight: 1.1.em,
+      ),
+      css('&__metric-label').styles(
+        color: textPrimary,
+        fontSize: 0.75.rem,
+        textTransform: .upperCase,
+        letterSpacing: 0.5.px,
+      ),
+      css('&__metric-detail').styles(
+        margin: .only(top: 0.3.rem),
+        color: textMuted,
+        fontSize: 0.75.rem,
+        lineHeight: 1.45.em,
+      ),
+      css('&__core-skills').styles(
+        display: .flex,
+        flexDirection: .column,
+        gap: Gap(row: 0.5.rem),
+      ),
+      css('&__core-skill').styles(
+        display: .flex,
+        padding: .symmetric(horizontal: 0.9.rem, vertical: 0.7.rem),
+        border: .only(left: BorderSide.solid(color: accentViolet, width: 2.px)),
+        radius: .all(.circular(6.px)),
+        flexWrap: .wrap,
+        justifyContent: .spaceBetween,
+        alignItems: .baseline,
+        gap: Gap(row: 0.15.rem, column: 1.rem),
+        backgroundColor: bgPanelSoft,
+      ),
+      css('&__core-skill-name').styles(color: textPrimary, fontSize: 0.95.rem),
+      // The receipt for the claim to its left — muted, because the skill
+      // name is what's being scanned for and the proof is what's read once
+      // the scan stops.
+      css('&__core-skill-proof').styles(color: accentCyan, fontSize: 0.8.rem),
       css('&__card', [
         css('&').styles(
           padding: .all(1.25.rem),
@@ -284,6 +388,15 @@ class HumanModeContent extends StatelessComponent {
         margin: .only(top: 0.35.rem),
         color: accentCyan,
         fontSize: 0.9.rem,
+      ),
+      // The scope-in-one-line under each job title. Amber (not the card's
+      // cyan role text) so the numbers separate from the job title rather
+      // than reading as a second line of it.
+      css('&__card-headline').styles(
+        margin: .only(top: 0.3.rem),
+        color: accentAmber,
+        fontSize: 0.82.rem,
+        letterSpacing: 0.3.px,
       ),
       css('&__project-link').styles(
         display: .inlineBlock,

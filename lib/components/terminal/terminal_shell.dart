@@ -425,6 +425,20 @@ class TerminalShellState extends State<TerminalShell> {
       alignItems: .baseline,
       gap: Gap(column: 0.75.rem),
     ),
+    css('.term-metric-row').styles(
+      display: .flex,
+      margin: .only(bottom: 0.3.rem),
+      flexWrap: .wrap,
+      alignItems: .baseline,
+      gap: Gap(column: 0.6.rem),
+    ),
+    // A fixed min-width so the numbers form a column the eye can run down,
+    // rather than each row starting wherever the previous value ended.
+    css('.term-metric-value').styles(
+      minWidth: 4.5.rem,
+      color: accentCyan,
+      fontWeight: .w700,
+    ),
     css('.term-help-list').styles(
       display: .flex,
       margin: .only(top: 0.4.rem, bottom: 0.4.rem),

@@ -4,6 +4,7 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
 import '../../data/experience.dart';
+import '../../data/metrics.dart';
 import '../../data/profile.dart';
 import '../../data/projects.dart';
 
@@ -119,14 +120,39 @@ List<Component> _whoamiOutput(List<String> args, TerminalActions actions) => [
   p(classes: 'term-strong', [.text(Profile.name)]),
   _muted('${Profile.role} · ${Profile.location}'),
   p(classes: 'term-accent', [.text(Profile.tagline)]),
-  _mutedHint("Type 'about', 'experience', or 'ls projects' to dig in.", actions),
+  _mutedHint("Type 'metrics', 'about', 'experience', or 'ls projects' to dig in.", actions),
 ];
 
 List<Component> _aboutOutput(List<String> args, TerminalActions actions) => [
   _line(Profile.summary),
-  _line(Profile.howIWork),
   _mutedHint(
-    "Next: 'experience' for the work history, 'ls projects' for what I've built, or 'gaming' for a tangent.",
+    "Next: 'metrics' for the numbers, 'experience' for the work history, 'ls projects' for what I've built.",
+    actions,
+  ),
+];
+
+// Not const: the headline and open-source groups interpolate values pulled
+// at build time, so they're 'final' rather than compile-time constants.
+final _metricSections = {
+  'scale': headlineMetrics,
+  'impact': impactMetrics,
+  'open source': openSourceMetrics,
+};
+
+List<Component> _metricsOutput(List<String> args, TerminalActions actions) => [
+  for (final MapEntry(key: title, value: metrics) in _metricSections.entries)
+    div(classes: 'term-block', [
+      p(classes: 'term-accent-violet', [.text('// $title')]),
+      for (final metric in metrics)
+        div(classes: 'term-metric-row', [
+          span(classes: 'term-metric-value', [.text(metric.value)]),
+          span(classes: 'term-strong', [.text(metric.label)]),
+          if (metric.detail != null) span(classes: 'term-muted', [.text(metric.detail!)]),
+        ]),
+    ]),
+  _mutedHint(
+    "Download and contribution counts come straight from the pub.dev and GitHub APIs. "
+    "Run 'ls projects' to see what they're counting.",
     actions,
   ),
 ];
@@ -152,6 +178,7 @@ List<Component> _experienceOutput(List<String> args, TerminalActions actions) =>
     div(classes: 'term-block', [
       p(classes: 'term-strong', [.text('${job.company} — ${job.role}')]),
       _muted(job.period),
+      p(classes: 'term-accent-amber', [.text(job.headline)]),
       ul(classes: 'term-list', [
         for (final bullet in job.bullets) li([.text(bullet)]),
       ]),
@@ -587,6 +614,7 @@ final commands = <Command>[
   Command(name: 'help', description: 'list available commands', handler: _helpOutput),
   Command(name: 'whoami', description: 'who is this, anyway', handler: _whoamiOutput),
   Command(name: 'about', description: 'the longer story', handler: _aboutOutput),
+  Command(name: 'metrics', description: 'the numbers, quantified', aliases: ['stats'], handler: _metricsOutput),
   Command(name: 'experience', description: 'work history', handler: _experienceOutput),
   Command(name: 'ls', description: "list 'projects', 'tools', or 'games'", handler: _lsOutput),
   Command(name: 'info', description: 'the long version, e.g. info zonai', handler: _infoOutput),
