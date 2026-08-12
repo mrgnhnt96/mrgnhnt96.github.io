@@ -109,6 +109,13 @@ const projects = <ProjectEntry>[
     category: ProjectCategory.project,
   ),
   ProjectEntry(
+    name: 'contacts',
+    description:
+        'An iMessage app and companion iOS app for searching contacts by any field and sharing them as vCards.',
+    category: ProjectCategory.project,
+    url: 'https://github.com/mrgnhnt96/contacts',
+  ),
+  ProjectEntry(
     name: 'equatable_gen',
     description: 'Auto-generates `props` getters for classes using the equatable package.',
     category: ProjectCategory.tool,
