@@ -32,3 +32,9 @@ migrate_working_dir/
 # Jaspr skill reference docs installed via `jaspr install-skills` — local
 # tooling material, not part of the site itself.
 .claude/
+
+# llm_chat identity for this project
+.llm_chat/
+
+# machine-local hook config (absolute paths)
+.claude/settings.local.json
