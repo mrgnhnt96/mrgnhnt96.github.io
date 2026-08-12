@@ -1,3 +1,5 @@
+import 'zonai_version.dart';
+
 enum ProjectCategory {
   project,
   tool,
@@ -77,9 +79,9 @@ const projects = <ProjectEntry>[
         "Named after Tears of the Kingdom's ancient civilization.",
     category: ProjectCategory.project,
     url: 'https://github.com/mrgnhnt96/zonai',
-    docsUrl: 'https://docs.zonai.dev',
+    docsUrl: 'https://zonai.dev',
     featured: true,
-    status: 'v0.6.0 · docs at docs.zonai.dev · pub release pending',
+    status: '$zonaiVersion · Published on pub.dev · docs at zonai.dev',
     highlights: [
       'Live query streams: clients subscribe to a query and get pushed updates as rows change — no polling loop to write.',
       'Schema-first — declare your tables in Dart and get CRUD, auth flows, SQL, and a typed client generated at compile time.',
