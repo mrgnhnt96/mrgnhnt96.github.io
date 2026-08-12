@@ -89,11 +89,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          # Only the two fields this token reads correctly. Commit and review
+          # totals are deliberately absent: they count only what the caller
+          # can see, so the bot would report 18 reviews instead of 1,497.
+          # Those live as hand-maintained constants in github_stats.dart.
           query='{ user(login: "mrgnhnt96") {
             repositories(ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC) { totalCount }
             contributionsCollection {
-              totalCommitContributions
-              totalPullRequestReviewContributions
               contributionCalendar { totalContributions }
             }
           } }'
@@ -111,8 +113,6 @@ jobs:
           contributions = user["contributionsCollection"]
           values = {
               "ghContributionsLastYear": contributions["contributionCalendar"]["totalContributions"],
-              "ghCommitsLastYear": contributions["totalCommitContributions"],
-              "ghReviewsLastYear": contributions["totalPullRequestReviewContributions"],
               "ghPublicRepos": user["repositories"]["totalCount"],
           }
           # A zero means the token couldn't see the account's activity.
