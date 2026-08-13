@@ -25,7 +25,7 @@ const experience = <ExperienceEntry>[
     company: 'Couchsurfing International',
     role: 'Staff Software Engineer',
     period: 'Nov 2023 — Present',
-    headline: '25M+ members · 1.3M lines of code · team of 9',
+    headline: '25M+ members · 1.3M lines of code · led a team of 9',
     bullets: [
       'Architected the Couchsurfing Flutter app from an empty repo to 1.3M lines of production code, '
           'shipping to a global member base of 25M+ across iOS and Android.',
