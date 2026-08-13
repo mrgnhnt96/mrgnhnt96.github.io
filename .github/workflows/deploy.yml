@@ -130,6 +130,14 @@ jobs:
           print(values)
           PY
 
+      # The link-preview card leads with the same four headline metrics, so
+      # it's re-rendered *after* the pulls above rather than shipped as a
+      # hand-drawn PNG that silently goes stale. Non-fatal: a missing or
+      # broken Chrome ships the committed image instead of failing the
+      # deploy over a picture.
+      - name: Render the social card
+        run: dart run tool/og_image.dart || echo "og-image render failed; keeping committed PNG"
+
       - run: dart pub global activate jaspr_cli
       - run: echo "$HOME/.pub-cache/bin" >> "$GITHUB_PATH"
       - run: jaspr build --verbose

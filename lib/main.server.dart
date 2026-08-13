@@ -10,6 +10,7 @@ import 'package:jaspr/server.dart';
 
 // Imports the [App] component.
 import 'app.dart';
+import 'data/code_stats.dart';
 import 'data/pub_stats.dart';
 import 'theme.dart';
 
@@ -67,7 +68,16 @@ void main() {
         meta(attributes: {'property': 'og:image'}, content: 'https://mrgnhnt.com/og-image.png'),
         meta(attributes: {'property': 'og:image:width'}, content: '1200'),
         meta(attributes: {'property': 'og:image:height'}, content: '630'),
-        meta(attributes: {'property': 'og:image:alt'}, content: 'Morgan Hunt — Staff Software Engineer'),
+        // Mirrors what the card actually shows — it's generated from the same
+        // headline metrics by `tool/og_image.dart`, so the alt text carries
+        // the numbers too rather than describing a blank nameplate.
+        meta(
+          attributes: {'property': 'og:image:alt'},
+          content:
+              'Morgan Hunt — Staff Software Engineer. 25M+ users reached, '
+              '${compactCount(pubDownloads30Days)} package downloads a month, \$1M+ annual revenue, '
+              '${compactCount(totalCodeLines)} lines written.',
+        ),
         meta(attributes: {'name': 'twitter:card'}, content: 'summary_large_image'),
         meta(attributes: {'name': 'twitter:title'}, content: 'Morgan Hunt — Staff Software Engineer'),
         meta(
