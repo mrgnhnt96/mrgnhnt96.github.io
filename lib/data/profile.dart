@@ -75,5 +75,5 @@ const skillGroups = <SkillGroup>[
   SkillGroup(label: 'Languages', items: ['Dart', 'TypeScript', 'JavaScript', 'Python']),
   SkillGroup(label: 'Frameworks', items: ['Flutter', 'Jaspr', 'Nocterm', 'Revali', 'Zonai', 'NestJS']),
   SkillGroup(label: 'Platforms', items: ['iOS', 'Android', 'macOS', 'Linux', 'Windows']),
-  SkillGroup(label: 'Architecture', items: ['Clean Architecture', 'BLoC', 'Provider', 'Scoped Deps', 'Get It', 'TDD']),
+  SkillGroup(label: 'Architecture', items: ['BLoC', 'Provider', 'Scoped Deps', 'Get It', 'TDD']),
 ];
