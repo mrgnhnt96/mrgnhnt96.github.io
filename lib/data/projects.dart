@@ -37,7 +37,7 @@ class ProjectEntry {
   final int? stars;
 
   /// The two frameworks the rest of the list orbits around. Featured entries
-  /// get their own section up top instead of being one card among ten.
+  /// lead the list and get a full write-up rather than a one-line card.
   final bool featured;
 
   /// Short "where this stands today" line — only worth showing for [featured]

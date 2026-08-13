@@ -32,8 +32,12 @@ class HumanModeContent extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final featured = featuredProjects;
-    final rest = projectsByCategory(ProjectCategory.project).where((entry) => !entry.featured).toList();
+    // Featured first, matching the terminal's ordering — the frameworks lead
+    // the list, the one-liners follow.
+    final allProjects = [
+      ...featuredProjects,
+      ...projectsByCategory(ProjectCategory.project).where((entry) => !entry.featured),
+    ];
 
     return div(classes: 'resume', [
       if (standalone) a(href: '/', classes: 'resume__back', [.text('← back to the terminal')]),
@@ -59,31 +63,8 @@ class HumanModeContent extends StatelessComponent {
         h2([.text('// summary')]),
         p([.text(Profile.summary)]),
       ]),
-      // Two shipped backend frameworks is the least-common thing on this
-      // page, so it leads the body rather than sitting under the jobs.
-      section(classes: 'resume__section', [
-        h2([.text('// frameworks')]),
-        div(classes: 'resume__cards', [
-          for (final project in featured)
-            article(classes: 'resume__card resume__card--featured', [
-              div(classes: 'resume__card-head', [
-                h3([.text(project.name)]),
-                if (project.stars != null) span(classes: 'resume__stars', [.text('★ ${project.stars}')]),
-              ]),
-              if (project.status != null) p(classes: 'resume__status', [.text(project.status!)]),
-              p([.text(project.description)]),
-              ul([
-                for (final highlight in project.highlights) li([.text(highlight)]),
-              ]),
-              div(classes: 'resume__project-links', [
-                if (project.docsUrl != null)
-                  a(href: project.docsUrl!, target: .blank, classes: 'resume__project-link', [.text('docs')]),
-                if (project.link != null)
-                  a(href: project.link!, target: .blank, classes: 'resume__project-link', [.text('source')]),
-              ]),
-            ]),
-        ]),
-      ]),
+      // The jobs lead the body — the shipped-at-work record is what a hiring
+      // manager is here for, and the projects read as supporting evidence.
       section(classes: 'resume__section', [
         h2([.text('// experience')]),
         div(classes: 'resume__cards', [
@@ -102,18 +83,35 @@ class HumanModeContent extends StatelessComponent {
         ]),
       ]),
       section(classes: 'resume__section', [
-        h2([.text('// other projects')]),
+        h2([.text('// projects')]),
         div(classes: 'resume__cards', [
-          for (final project in rest)
-            article(classes: 'resume__card', [
-              div(classes: 'resume__card-head', [
-                h3([.text(project.name)]),
-                if (project.stars != null) span(classes: 'resume__stars', [.text('★ ${project.stars}')]),
-              ]),
-              p([.text(project.description)]),
-              if (project.link != null)
-                a(href: project.link!, target: .blank, classes: 'resume__project-link', [.text(project.link!)]),
-            ]),
+          for (final project in allProjects)
+            // The two frameworks get the full write-up — status, highlights,
+            // a docs link — while everything else stays a one-liner.
+            article(
+              classes: project.featured ? 'resume__card resume__card--featured' : 'resume__card',
+              [
+                div(classes: 'resume__card-head', [
+                  h3([.text(project.name)]),
+                  if (project.stars != null) span(classes: 'resume__stars', [.text('★ ${project.stars}')]),
+                ]),
+                if (project.status != null) p(classes: 'resume__status', [.text(project.status!)]),
+                p([.text(project.description)]),
+                if (project.highlights.isNotEmpty)
+                  ul([
+                    for (final highlight in project.highlights) li([.text(highlight)]),
+                  ]),
+                if (project.featured)
+                  div(classes: 'resume__project-links', [
+                    if (project.docsUrl != null)
+                      a(href: project.docsUrl!, target: .blank, classes: 'resume__project-link', [.text('docs')]),
+                    if (project.link != null)
+                      a(href: project.link!, target: .blank, classes: 'resume__project-link', [.text('source')]),
+                  ])
+                else if (project.link != null)
+                  a(href: project.link!, target: .blank, classes: 'resume__project-link', [.text(project.link!)]),
+              ],
+            ),
         ]),
       ]),
       section(classes: 'resume__section', [
