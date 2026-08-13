@@ -7,13 +7,11 @@ import '../data/profile.dart';
 import '../data/projects.dart';
 import '../theme.dart';
 
-/// One grid of [Metric] cards. [lead] gives them the accent treatment that
-/// marks the headline four apart from the supporting groups below.
-Component _metricGrid(List<Metric> metrics, {bool lead = false}) {
-  final cardClasses = lead ? 'resume__metric resume__metric--lead' : 'resume__metric';
+/// The grid of headline [Metric] cards.
+Component _metricGrid(List<Metric> metrics) {
   return div(classes: 'resume__metrics', [
     for (final metric in metrics)
-      div(classes: cardClasses, [
+      div(classes: 'resume__metric', [
         span(classes: 'resume__metric-value', [.text(metric.value)]),
         span(classes: 'resume__metric-label', [.text(metric.label)]),
         if (metric.detail != null) span(classes: 'resume__metric-detail', [.text(metric.detail!)]),
@@ -55,15 +53,7 @@ class HumanModeContent extends StatelessComponent {
       // that survives a ten-second skim.
       section(classes: 'resume__section', [
         h2([.text('// by the numbers')]),
-        _metricGrid(headlineMetrics, lead: true),
-      ]),
-      section(classes: 'resume__section', [
-        h2([.text('// impact')]),
-        _metricGrid(impactMetrics),
-      ]),
-      section(classes: 'resume__section', [
-        h2([.text('// open source')]),
-        _metricGrid(openSourceMetrics),
+        _metricGrid(headlineMetrics),
       ]),
       section(classes: 'resume__section', [
         h2([.text('// summary')]),
@@ -244,7 +234,7 @@ class HumanModeContent extends StatelessComponent {
         flexDirection: .column,
         gap: Gap(row: 1.rem),
       ),
-      // auto-fit rather than a fixed column count so the eight metrics
+      // auto-fit rather than a fixed column count so the four metrics
       // reflow from two-up to one-up on their own. The 260px floor lands on
       // two columns inside this page's 760px measure — wide enough that
       // each card's detail sentence gets a readable line length instead of
@@ -254,23 +244,19 @@ class HumanModeContent extends StatelessComponent {
         gap: Gap(row: 0.75.rem, column: 0.75.rem),
         raw: {'grid-template-columns': 'repeat(auto-fit, minmax(260px, 1fr))'},
       ),
-      css('&__metric', [
-        css('&').styles(
-          display: .flex,
-          padding: .all(0.9.rem),
-          border: .all(color: borderSubtle, width: 1.px),
-          radius: .all(.circular(10.px)),
-          flexDirection: .column,
-          gap: Gap(row: 0.15.rem),
-          backgroundColor: bgPanelSoft,
-        ),
-        // The headline four get the accent treatment so they still read as
-        // the primary numbers even sharing a grid with the supporting four.
-        css('&--lead').styles(
-          border: .all(color: .rgba(94, 234, 212, 0.3), width: 1.px),
-          raw: {'background-image': 'linear-gradient(150deg, rgba(94, 234, 212, 0.08), rgba(167, 139, 250, 0.06))'},
-        ),
-      ]),
+      // These are the only numbers on the page now, so they all carry the
+      // accent treatment that used to separate the headline four from the
+      // supporting grids below them.
+      css('&__metric').styles(
+        display: .flex,
+        padding: .all(0.9.rem),
+        border: .all(color: .rgba(94, 234, 212, 0.3), width: 1.px),
+        radius: .all(.circular(10.px)),
+        flexDirection: .column,
+        gap: Gap(row: 0.15.rem),
+        backgroundColor: bgPanelSoft,
+        raw: {'background-image': 'linear-gradient(150deg, rgba(94, 234, 212, 0.08), rgba(167, 139, 250, 0.06))'},
+      ),
       css('&__metric-value').styles(
         color: accentCyan,
         fontSize: 1.55.rem,
