@@ -360,7 +360,15 @@ class HumanModeContent extends StatelessComponent {
         ),
         css('h3').styles(fontSize: 1.35.rem),
       ]),
-      css('&__status').styles(
+      // Written out in full ('p.resume__status') rather than as '&__status'
+      // on purpose. '&__card' above sets '.resume__card p { color: muted }'
+      // at specificity (0,1,1), which outranks a lone class at (0,1,0) — so
+      // the short form lost and these rendered grey. Nested here the full
+      // form compiles to '.resume p.resume__status' at (0,2,1), which wins.
+      // '&' can't do this: jaspr only substitutes it at the start of a
+      // selector, so 'p&__status' emits a literal '&' and breaks the rule.
+      // Same for the two rules below.
+      css('p.resume__status').styles(
         margin: .only(top: 0.4.rem),
         color: accentAmber,
         fontSize: 0.8.rem,
@@ -386,7 +394,7 @@ class HumanModeContent extends StatelessComponent {
       ),
       css('&__period').styles(color: textDim, fontSize: 0.85.rem, whiteSpace: .noWrap),
       css('&__stars').styles(color: accentAmber, fontSize: 0.85.rem),
-      css('&__card-role').styles(
+      css('p.resume__card-role').styles(
         margin: .only(top: 0.35.rem),
         color: accentCyan,
         fontSize: 0.9.rem,
@@ -394,7 +402,7 @@ class HumanModeContent extends StatelessComponent {
       // The scope-in-one-line under each job title. Amber (not the card's
       // cyan role text) so the numbers separate from the job title rather
       // than reading as a second line of it.
-      css('&__card-headline').styles(
+      css('p.resume__card-headline').styles(
         margin: .only(top: 0.3.rem),
         color: accentAmber,
         fontSize: 0.82.rem,
