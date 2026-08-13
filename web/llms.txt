@@ -23,7 +23,7 @@ Impact:
 
 Open source:
 
-- **24 packages** on pub.dev; **2** backend frameworks built end to end; **6** packages at a perfect 160/160 pub.dev score.
+- **24 packages** on pub.dev; **2** backend frameworks built end to end.
 - **1M+ lines of his own code** across personal projects, separate from anything built at work.
 - **64 public non-fork repositories** (94 total), 51 of them Dart.
 

@@ -116,11 +116,6 @@ final openSourceMetrics = <Metric>[
     detail: 'Non-fork and publicly readable, of 94 total — 51 of them Dart.',
   ),
   const Metric(
-    value: '6',
-    label: 'perfect pub scores',
-    detail: 'Packages holding a full 160/160 on pub.dev for docs, conventions, and analysis.',
-  ),
-  const Metric(
     value: '2',
     label: 'backend frameworks',
     detail: 'Revali and Zonai — both published, both documented, both built end to end.',
