@@ -36,19 +36,48 @@ jobs:
       - name: Pull pub.dev download totals
         run: |
           python3 - <<'PY'
-          import json, re, urllib.request
+          import json, re, urllib.parse, urllib.request
 
-          PACKAGES = """
-          change_case go_router_paths pub_version_plus sip_cli hooksman
-          equatable_gen equatable_annotations scoped_deps generator_test
-          import_ozempic revali revali_annotations revali_core revali_client
-          revali_docker revali_client_gen revali_construct revali_router
-          revali_swagger autoequal brick_oven enum_assist
-          zonai_schema zonai_client
-          """.split()
+          # Derived from the publisher listings rather than hand-listed. A
+          # hand-maintained list silently drifts every time a package ships
+          # under a new name, and it did: nine packages went uncounted and
+          # understated the headline number by ~58K/month.
+          PUBLISHERS = ("mrgnhnt.com", "revali.dev", "zonai.dev")
+
+          # Search hides discontinued and unlisted packages, but they still
+          # get pulled, so they still count. Only these two are affected.
+          LEGACY = {"autoequal", "enum_assist"}
+
+
+          def packages_for(publisher):
+              """Every package pub.dev's search will admit to for a publisher."""
+              found, page = [], 1
+              query = urllib.parse.quote(f"publisher:{publisher}")
+              while page <= 20:
+                  with urllib.request.urlopen(
+                      f"https://pub.dev/api/search?q={query}&page={page}", timeout=20
+                  ) as response:
+                      batch = json.load(response).get("packages") or []
+                  if not batch:
+                      return found
+                  found += [entry["package"] for entry in batch]
+                  page += 1
+              raise RuntimeError(f"{publisher}: search did not terminate")
+
+          path = "lib/data/pub_stats.dart"
+          source = open(path).read()
+          committed = int(re.search(r"const pubPackageCount = (\d+);", source).group(1))
+
+          try:
+              names = set(LEGACY)
+              for publisher in PUBLISHERS:
+                  names |= set(packages_for(publisher))
+          except Exception as error:
+              print(f"publisher listing failed ({error}); keeping committed fallback")
+              raise SystemExit(0)
 
           total, counted = 0, 0
-          for name in PACKAGES:
+          for name in sorted(names):
               try:
                   with urllib.request.urlopen(
                       f"https://pub.dev/api/packages/{name}/score", timeout=20
@@ -62,12 +91,16 @@ jobs:
           # a failed fetch leaves the committed fallback in place instead.
           # Deliberately not an error: pub.dev having a bad minute shouldn't
           # take the whole deploy down when a good fallback is committed.
-          if counted < len(PACKAGES):
-              print(f"only {counted}/{len(PACKAGES)} fetched; keeping committed fallback")
+          if counted < len(names):
+              print(f"only {counted}/{len(names)} fetched; keeping committed fallback")
               raise SystemExit(0)
 
-          path = "lib/data/pub_stats.dart"
-          source = open(path).read()
+          # The package set only ever grows. Shrinking means the listing came
+          # back partial, which reads as a real number and isn't one.
+          if counted < committed:
+              print(f"{counted} packages < {committed} committed; keeping committed fallback")
+              raise SystemExit(0)
+
           source = re.sub(r"const pubDownloads30Days = \d+;", f"const pubDownloads30Days = {total};", source)
           source = re.sub(r"const pubPackageCount = \d+;", f"const pubPackageCount = {counted};", source)
           open(path, "w").write(source)

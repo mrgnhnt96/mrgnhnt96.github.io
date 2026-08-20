@@ -1,14 +1,16 @@
 /// Aggregate pub.dev download stats across every published package.
 ///
 /// Overwritten by `.github/workflows/deploy.yml` before each build, which
-/// sums `downloadCount30Days` across both publishers via the pub.dev API.
-/// The values below are only the local/fallback defaults used for
-/// `jaspr serve` and when the CI fetch fails.
+/// sums `downloadCount30Days` across every package under the mrgnhnt.com,
+/// revali.dev, and zonai.dev publishers. The workflow derives that list from
+/// pub.dev rather than hard-coding it, so publishing a new package needs no
+/// change here. The values below are only the local/fallback defaults used
+/// for `jaspr serve` and when the CI fetch fails.
 ///
 /// These are load-bearing numbers — they're the headline proof on the site —
 /// so they're pulled fresh rather than hand-maintained and left to rot.
-const pubDownloads30Days = 208978;
-const pubPackageCount = 24;
+const pubDownloads30Days = 267675;
+const pubPackageCount = 36;
 
 /// Rounds [n] to a compact, honest display form: 208,903 -> '208K'.
 ///
