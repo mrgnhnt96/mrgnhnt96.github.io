@@ -20,6 +20,7 @@ Impact:
 - **5× user growth** — ~2K to 10K+ monthly active users, as the sole developer.
 - **2,382 pull requests reviewed** and **947 shipped** (913 merged) on a 67-contributor monorepo.
 - **Two-week release cadence** sustained across iOS and Android for 3.5 years.
+- **6 companies contracted** — 52 months of cumulative engagement time as an independent Flutter and Dart consultant.
 
 Open source:
 

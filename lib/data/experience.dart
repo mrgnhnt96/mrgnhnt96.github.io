@@ -56,4 +56,26 @@ const experience = <ExperienceEntry>[
           'shipped features, from concept through store release.',
     ],
   ),
+  // Deliberately unnamed. The clients are real and are listed on my own
+  // resume, but there's no reason a portfolio needs to name them — the
+  // count and the total engagement time carry the point on their own, which
+  // is that the contract work was sustained rather than a one-off.
+  //
+  // 'period' carries a duration instead of a date range because these
+  // engagements overlapped each other and the salaried roles above; a
+  // start-to-end range would imply a continuous stretch that never happened.
+  ExperienceEntry(
+    company: 'Independent Contracts',
+    role: 'Flutter & Dart Consultant',
+    period: '52 months cumulative',
+    headline: '6 companies · 52 months of engagements',
+    bullets: [
+      'Delivered mobile products for six companies as an independent contractor, totaling 52 months '
+          'of engagement time across the six.',
+      'Refactored MVPs into maintainable, scalable codebases and shipped new features against tight '
+          'external deadlines.',
+      'Consulted with in-house teams and raised their Flutter practice, rather than handing over code '
+          'and walking away.',
+    ],
+  ),
 ];

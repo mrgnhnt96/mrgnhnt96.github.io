@@ -83,6 +83,11 @@ const impactMetrics = <Metric>[
     label: 'release cadence',
     detail: 'Sustained a two-week iOS and Android release cycle for 3.5 years.',
   ),
+  Metric(
+    value: '6',
+    label: 'companies contracted',
+    detail: '52 months of cumulative engagement time as an independent contractor.',
+  ),
 ];
 
 /// The open-source body of work, and how active it actually is — the part
