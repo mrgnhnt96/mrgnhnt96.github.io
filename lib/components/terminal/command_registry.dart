@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
+import '../../data/apps.dart';
 import '../../data/experience.dart';
 import '../../data/metrics.dart';
 import '../../data/profile.dart';
@@ -120,13 +121,14 @@ List<Component> _whoamiOutput(List<String> args, TerminalActions actions) => [
   p(classes: 'term-strong', [.text(Profile.name)]),
   _muted('${Profile.role} · ${Profile.location}'),
   p(classes: 'term-accent', [.text(Profile.tagline)]),
-  _mutedHint("Type 'metrics', 'about', 'experience', or 'ls projects' to dig in.", actions),
+  _mutedHint("Type 'metrics', 'about', 'experience', 'apps', or 'ls projects' to dig in.", actions),
 ];
 
 List<Component> _aboutOutput(List<String> args, TerminalActions actions) => [
   _line(Profile.summary),
   _mutedHint(
-    "Next: 'metrics' for the numbers, 'experience' for the work history, 'ls projects' for what I've built.",
+    "Next: 'metrics' for the numbers, 'experience' for the work history, 'apps' for what's on the stores, "
+    "'ls projects' for what I've built.",
     actions,
   ),
 ];
@@ -183,7 +185,33 @@ List<Component> _experienceOutput(List<String> args, TerminalActions actions) =>
         for (final bullet in job.bullets) li([.text(bullet)]),
       ]),
     ]),
-  _mutedHint("See 'ls projects' for things I've built on the side, or 'contact' to reach out.", actions),
+  _mutedHint(
+    "Run 'apps' for the store listings, 'ls projects' for what I've built on the side, or 'contact' to reach out.",
+    actions,
+  ),
+];
+
+/// The two employer apps, with their store links.
+///
+/// Deliberately louder about the links than the project listings are: the
+/// code behind these isn't public, so a store listing is the only thing a
+/// visitor can actually go check.
+List<Component> _appsOutput(List<String> args, TerminalActions actions) => [
+  for (final app in shippedApps)
+    div(classes: 'term-block', [
+      p(classes: 'term-strong', [.text('${app.name} — ${app.storeName}')]),
+      _muted(app.period),
+      p(classes: 'term-accent-amber', [.text(app.headline)]),
+      _line(app.description),
+      div(classes: 'term-ls-row', [
+        _link(app.appStoreUrl, 'App Store ↗'),
+        _link(app.playStoreUrl, 'Google Play ↗'),
+      ]),
+    ]),
+  _mutedHint(
+    "These are the apps behind the numbers in 'experience'. Run 'open couchsurfing' to jump straight to a listing.",
+    actions,
+  ),
 ];
 
 const _lsFlagJokes = [
@@ -308,12 +336,25 @@ List<Component> _catOutput(List<String> args, TerminalActions actions) {
 
 List<Component> _openOutput(List<String> args, TerminalActions actions) {
   if (args.isEmpty) {
-    return [_errorHint("open: missing project name — try 'ls projects' first.", actions)];
+    return [_errorHint("open: missing name — try 'ls projects' or 'apps' first.", actions)];
   }
-  final name = args.first.toLowerCase();
+  // Joined rather than args.first because one of the apps is three words.
+  // Project names are single tokens, so this is identical for them.
+  final name = args.join(' ').toLowerCase();
+  final app = findShippedApp(name);
+  if (app != null) {
+    actions.openUrl(app.appStoreUrl);
+    return [
+      _muted('Opening the ${app.name} App Store listing in a new tab…'),
+      // The other platform, so nobody has to guess a second command for it.
+      div(classes: 'term-ls-row', [_link(app.playStoreUrl, 'Google Play ↗')]),
+    ];
+  }
   final entry = _findProject(name);
   if (entry == null) {
-    return [_errorHint("open: $name: no such project — try 'ls projects', 'ls tools', or 'ls games'.", actions)];
+    return [
+      _errorHint("open: $name: no such project — try 'ls projects', 'ls tools', 'ls games', or 'apps'.", actions),
+    ];
   }
   final link = entry.link;
   if (link == null) {
@@ -616,6 +657,7 @@ final commands = <Command>[
   Command(name: 'about', description: 'the longer story', handler: _aboutOutput),
   Command(name: 'metrics', description: 'the numbers, quantified', aliases: ['stats'], handler: _metricsOutput),
   Command(name: 'experience', description: 'work history', handler: _experienceOutput),
+  Command(name: 'apps', description: 'the apps I shipped, with store links', handler: _appsOutput),
   Command(name: 'ls', description: "list 'projects', 'tools', or 'games'", handler: _lsOutput),
   Command(name: 'info', description: 'the long version, e.g. info zonai', handler: _infoOutput),
   Command(name: 'cat', description: 'read a file, e.g. cat resume', handler: _catOutput),
@@ -632,7 +674,7 @@ final commands = <Command>[
   Command(name: 'sudo', description: 'try it', handler: _sudoOutput),
   Command(name: 'gaming', description: "you'll see", handler: _gamingOutput),
   Command(name: 'jokes', description: 'bad jokes, on demand', handler: _jokesOutput),
-  Command(name: 'open', description: "open a project's repo, e.g. open sip", handler: _openOutput),
+  Command(name: 'open', description: 'open a repo or store listing, e.g. open sip', handler: _openOutput),
 ];
 
 Command? findCommand(String name) {

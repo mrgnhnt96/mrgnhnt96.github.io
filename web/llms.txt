@@ -27,7 +27,7 @@ Open source:
 - **1M+ lines of his own code** across personal projects, separate from anything built at work.
 - **64 public non-fork repositories** (94 total), 51 of them Dart.
 
-The home page renders as an interactive terminal (commands like `metrics`, `experience`, `ls projects`, `about`), with a plain-HTML fallback for readers that don't run scripts. `/resume` is the full résumé as text and is the best page to read for background, work history, and skills.
+The home page renders as an interactive terminal (commands like `metrics`, `experience`, `apps`, `ls projects`, `about`), with a plain-HTML fallback for readers that don't run scripts. `/resume` is the full résumé as text and is the best page to read for background, work history, and skills.
 
 Contact: mrgnhnt96@gmail.com · [GitHub](https://github.com/mrgnhnt96) · [LinkedIn](https://www.linkedin.com/in/mrgnhnt96/) · [X](https://x.com/mrgnhnt96_dev)
 
@@ -36,6 +36,13 @@ Contact: mrgnhnt96@gmail.com · [GitHub](https://github.com/mrgnhnt96) · [Linke
 - [Home](https://mrgnhnt.com/): Bio, projects, and contact info, as an interactive terminal.
 - [Résumé](https://mrgnhnt.com/resume/): Work history, skills, and experience in full.
 - [Résumé (PDF)](https://mrgnhnt.com/resume.pdf): The same résumé as a downloadable PDF.
+
+## Shipped apps
+
+Products built at work and published to both stores. The code isn't public, so the store listings are the receipts.
+
+- [Couchsurfing](https://apps.apple.com/us/app/couchsurfing-stay-meet-host/id525642917): The travel app he architected from an empty repo to 1.3M lines of production Flutter, serving 25M+ members, and the app the team of 9 he leads builds on. Also on [Google Play](https://play.google.com/store/apps/details?id=com.couchsurfing.mobile.android).
+- [Clean Simple Eats +](https://apps.apple.com/us/app/clean-simple-eats/id1449960712): A meal-planning and nutrition app he owned end to end as sole developer — 4.8 stars across 5,700+ ratings, $1M+ in annual revenue, grown 5× to 10K+ monthly active users. Also on [Google Play](https://play.google.com/store/apps/details?id=com.cleansimpleeats.cseplus).
 
 ## Flagship frameworks
 

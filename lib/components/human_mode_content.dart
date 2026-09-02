@@ -1,6 +1,7 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
+import '../data/apps.dart';
 import '../data/experience.dart';
 import '../data/metrics.dart';
 import '../data/profile.dart';
@@ -62,6 +63,31 @@ class HumanModeContent extends StatelessComponent {
       section(classes: 'resume__section', [
         h2([.text('// summary')]),
         p([.text(Profile.summary)]),
+      ]),
+      // Sits between the summary and the jobs on purpose: the summary makes
+      // the claims, this section is the part a reader can go tap and verify,
+      // and the experience bullets below explain what it took.
+      section(classes: 'resume__section', [
+        h2([.text('// shipped apps')]),
+        div(classes: 'resume__cards', [
+          for (final app in shippedApps)
+            article(classes: 'resume__card resume__app', [
+              div(classes: 'resume__app-head', [
+                img(src: app.icon, alt: '${app.name} app icon', classes: 'resume__app-icon'),
+                div(classes: 'resume__app-title', [
+                  h3([.text(app.name)]),
+                  span(classes: 'resume__app-store-name', [.text(app.storeName)]),
+                ]),
+                span(classes: 'resume__period', [.text(app.period)]),
+              ]),
+              p(classes: 'resume__card-headline', [.text(app.headline)]),
+              p([.text(app.description)]),
+              div(classes: 'resume__project-links', [
+                a(href: app.appStoreUrl, target: .blank, classes: 'resume__store-link', [.text('App Store ↗')]),
+                a(href: app.playStoreUrl, target: .blank, classes: 'resume__store-link', [.text('Google Play ↗')]),
+              ]),
+            ]),
+        ]),
       ]),
       // The jobs lead the body — the shipped-at-work record is what a hiring
       // manager is here for, and the projects read as supporting evidence.
@@ -368,6 +394,64 @@ class HumanModeContent extends StatelessComponent {
         // The standalone link on a plain card spaces itself; inside this row
         // the row owns the spacing.
         css('a').styles(margin: .zero),
+      ]),
+      // The store listing is the proof these cards exist to offer, so they
+      // get the same cyan-tinted lift the featured project cards get — just
+      // in cyan rather than violet, to keep "shipped at work" visually
+      // distinct from "flagship open source" further down the page.
+      css('&__app', [
+        css('&').styles(
+          border: .all(color: .rgba(94, 234, 212, 0.3), width: 1.px),
+          raw: {'background-image': 'linear-gradient(160deg, rgba(94, 234, 212, 0.07), rgba(167, 139, 250, 0.05))'},
+        ),
+        css('&:hover').styles(
+          border: .all(color: .rgba(94, 234, 212, 0.6), width: 1.px),
+        ),
+      ]),
+      css('&__app-head').styles(
+        display: .flex,
+        flexWrap: .wrap,
+        alignItems: .center,
+        gap: Gap(row: 0.5.rem, column: 0.9.rem),
+      ),
+      // Fixed rather than max-width so the two cards' titles line up at the
+      // same x even though the icons are different aspect-ratio sources.
+      css('&__app-icon').styles(
+        width: 56.px,
+        height: 56.px,
+        border: .all(color: borderSubtle, width: 1.px),
+        radius: .all(.circular(13.px)),
+      ),
+      // Takes the slack so the period stays pinned to the right edge, and
+      // wraps under the icon rather than squeezing on narrow screens.
+      css('&__app-title').styles(
+        display: .flex,
+        minWidth: 10.rem,
+        flexDirection: .column,
+        gap: Gap(row: 0.15.rem),
+        flex: Flex(grow: 1, shrink: 1, basis: .auto),
+      ),
+      css('&__app-store-name').styles(color: textDim, fontSize: 0.8.rem),
+      // Reads as a button, unlike the plain text links on project cards —
+      // these are the one thing on the card a visitor is meant to tap.
+      css('&__store-link', [
+        css('&').styles(
+          padding: .symmetric(horizontal: 0.9.rem, vertical: 0.45.rem),
+          border: .all(color: .rgba(94, 234, 212, 0.35), width: 1.px),
+          radius: .all(.circular(999.px)),
+          transition: Transition.combine([
+            Transition('border-color', duration: durFast),
+            Transition('background-color', duration: durFast),
+          ]),
+          color: accentCyan,
+          fontSize: 0.85.rem,
+          textDecoration: TextDecoration(line: .none),
+          backgroundColor: bgPanelSoft,
+        ),
+        css('&:hover').styles(
+          border: .all(color: accentCyan, width: 1.px),
+          backgroundColor: .rgba(94, 234, 212, 0.12),
+        ),
       ]),
       css('&__card-head').styles(
         display: .flex,
