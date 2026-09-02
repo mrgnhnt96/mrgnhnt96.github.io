@@ -157,7 +157,9 @@ const projects = <ProjectEntry>[
     name: 'gun_fu',
     description: 'A terminal game about a gunfight. Draw fast.',
     category: ProjectCategory.game,
-    url: 'https://github.com/mrgnhnt96/gun_fu',
+    // No url on purpose: the repo is private, so linking it 404s for
+    // everyone but me. Handled the same way as oat — the entry stays, the
+    // link doesn't, and 'open gun_fu' says so rather than opening a 404.
   ),
 ];
 

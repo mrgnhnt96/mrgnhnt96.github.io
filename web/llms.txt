@@ -59,8 +59,8 @@ Products built at work and published to both stores. The code isn't public, so t
 - [contacts](https://github.com/mrgnhnt96/contacts): An iMessage app and companion iOS app for searching contacts by any field and sharing them as vCards.
 - [minesweeper](https://github.com/mrgnhnt96/minesweeper): Classic Minesweeper, recreated for the command line.
 - [snake](https://github.com/mrgnhnt96/snake): Classic Snake, recreated for the command line.
-- [gun_fu](https://github.com/mrgnhnt96/gun_fu): A terminal game about a gunfight.
 
 ## Optional
 
 - [oat](https://mrgnhnt.com/): A macOS app for managing shell aliases, functions, env vars, and PATH entries — no public repo yet.
+- [gun_fu](https://mrgnhnt.com/): A terminal game about a gunfight — private repo, no public source.
