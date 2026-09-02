@@ -50,12 +50,11 @@ const shippedApps = <ShippedApp>[
     name: 'Couchsurfing',
     storeName: 'Couchsurfing: Stay, Meet, Host',
     icon: '/apps/couchsurfing.png',
-    period: 'Nov 2023 — Present',
+    period: 'Nov 2023 — Aug 2026',
     headline: '25M+ members · 1.3M lines · iOS & Android',
     description:
-        'The travel app I architected from an empty repo to 1.3M lines of production Flutter, and the one '
-        'I lead a team of 9 engineers on today. Members use it to find hosts, meet locals, and plan stays '
-        'around the world.',
+        'The travel app I architected from an empty repo to 1.3M lines of production Flutter, and led a '
+        'team of 9 engineers on. Members use it to find hosts, meet locals, and plan stays around the world.',
     appStoreUrl: 'https://apps.apple.com/us/app/couchsurfing-stay-meet-host/id525642917',
     playStoreUrl: 'https://play.google.com/store/apps/details?id=com.couchsurfing.mobile.android',
   ),

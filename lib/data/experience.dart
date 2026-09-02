@@ -24,13 +24,13 @@ const experience = <ExperienceEntry>[
   ExperienceEntry(
     company: 'Couchsurfing International',
     role: 'Staff Software Engineer',
-    period: 'Nov 2023 — Present',
+    period: 'Nov 2023 — Aug 2026',
     headline: '25M+ members · 1.3M lines of code · led a team of 9',
     bullets: [
       'Architected the Couchsurfing Flutter app from an empty repo to 1.3M lines of production code, '
           'shipping to a global member base of 25M+ across iOS and Android.',
-      'Lead and mentor a team of 9 mobile engineers, reviewing 2,382 pull requests to date and setting '
-          'the architecture and engineering standards the entire mobile org now builds against.',
+      'Led and mentored a team of 9 mobile engineers, reviewing 2,382 pull requests and setting the '
+          'architecture and engineering standards the entire mobile org still builds against.',
       'Shipped 947 pull requests and 1,100+ commits into a 67-contributor monorepo, one of its most '
           'active engineers across both the Dart and TypeScript sides.',
       'Built a type-safe code generation pipeline that syncs backend TypeScript contracts into Dart '

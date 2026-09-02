@@ -51,7 +51,7 @@ const impactMetrics = <Metric>[
   Metric(
     value: '9',
     label: 'engineers led',
-    detail: 'The mobile team I lead and mentor, setting technical direction and engineering standards.',
+    detail: 'The mobile team I led and mentored at Couchsurfing, setting technical direction and standards.',
   ),
   Metric(
     value: '1.3M',

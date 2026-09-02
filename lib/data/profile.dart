@@ -15,9 +15,9 @@ abstract final class Profile {
   static final summary =
       'Staff software engineer, 8+ years deep in Dart and Flutter. I architected '
       "Couchsurfing's mobile app from an empty repo to 1.3M lines of production code serving "
-      '25M+ members, and I lead the team of 9 engineers who build on it. Before that I grew a '
+      '25M+ members, and I led the team of 9 engineers who build on it. Before that I grew a '
       "meal-planning app 5× to 10K+ monthly active users as its sole developer, on a product "
-      'doing over \$1M a year at 4.8 stars. Outside the day job I maintain $pubPackageCount '
+      'doing over \$1M a year at 4.8 stars. Alongside all of that I maintain $pubPackageCount '
       'packages on pub.dev — including two full backend frameworks, Revali and Zonai — '
       'downloaded ${compactCount(pubDownloads30Days)} times a month. Most of it exists because '
       "some corner of the Dart ecosystem was missing it. If a tool gets in a developer's way, "
