@@ -515,8 +515,95 @@ class HumanModeContent extends StatelessComponent {
         fontSize: 0.85.rem,
       ),
     ]),
+    // Makes "print to PDF" produce an actual resume.
+    //
+    // web/resume.pdf is a Figma export maintained by hand, so it goes stale
+    // every time the data files here change. This doesn't replace it — it
+    // gives the site a version that can't go stale, because it's rendered
+    // from the same data as the page.
+    //
+    // Everything below is undoing the screen design rather than decorating:
+    // the dark glass panel, the translucent fills and the aurora accents all
+    // assume a near-black backdrop, and on white they range from washed out
+    // to genuinely invisible.
+    css.media(const MediaQuery.print(), [
+      css('.resume', [
+        css('&').styles(
+          maxWidth: 100.percent,
+          padding: .zero,
+          margin: .zero,
+          backdropFilter: Filter.none,
+          color: printInk,
+          backgroundColor: printPaper,
+          raw: {'-webkit-backdrop-filter': 'none'},
+        ),
+        // A link back to a terminal is meaningless once this is on paper.
+        css('&__back').styles(display: .none),
+        // The h1 paints its gradient *through* the text with a transparent
+        // fill, which prints as nothing at all — the name would be missing
+        // from the top of the page. Put the ink back before anything else.
+        css('h1').styles(
+          color: printInk,
+          raw: {'background': 'none', '-webkit-text-fill-color': printInkHex},
+        ),
+        css('&__role').styles(color: printInkSoft),
+        css('&__tagline').styles(color: printAccent),
+        css('&__links a').styles(color: printInk),
+        css('h2').styles(color: printAccent),
+        css('p').styles(color: printInkSoft),
+        // Cards are the natural unit to keep whole — a job or an app split
+        // across a page boundary is the one break worth spending paper to
+        // avoid.
+        css('&__card').styles(
+          border: .all(color: printRule, width: 1.px),
+          backgroundColor: printPaper,
+          raw: {'background-image': 'none', 'box-shadow': 'none', 'break-inside': 'avoid'},
+        ),
+        css('&__card ul').styles(color: printInkSoft),
+        css('&__metric').styles(
+          border: .all(color: printRule, width: 1.px),
+          backgroundColor: printPaper,
+          raw: {'background-image': 'none'},
+        ),
+        css('&__metric-value').styles(color: printAccent),
+        css('&__metric-label').styles(color: printInk),
+        css('&__metric-detail').styles(color: printInkSoft),
+        css('&__core-skill').styles(backgroundColor: printPaper),
+        css('&__core-skill-name').styles(color: printInk),
+        css('&__core-skill-proof').styles(color: printAccent),
+        css('&__pill').styles(border: .all(color: printRule, width: 1.px), color: printInk),
+        css('&__skill-label').styles(color: printInkSoft),
+        css('&__app').styles(border: .all(color: printRule, width: 1.px), raw: {'background-image': 'none'}),
+        css('&__app-store-name').styles(color: printInkSoft),
+        css('&__store-link').styles(
+          border: .all(color: printRule, width: 1.px),
+          color: printAccent,
+          backgroundColor: printPaper,
+        ),
+        css('&__project-link').styles(color: printAccent),
+        css('p.resume__status').styles(color: printAccentWarm),
+        css('p.resume__card-role').styles(color: printAccent),
+        css('p.resume__card-headline').styles(color: printAccentWarm),
+        css('&__period').styles(color: printInkSoft),
+        css('&__stars').styles(color: printAccentWarm),
+      ]),
+    ]),
   ];
 }
 
 const accentCyanHex = '#5eead4';
 const accentVioletHex = '#a78bfa';
+
+// -- Print ink ------------------------------------------------------------
+//
+// The screen palette is built for a near-black backdrop and none of it
+// survives on white: accentCyan (#5eead4) is barely visible, textMuted
+// (#8b93a7) drops below readable contrast, and textDim is worse. These are
+// the same hues taken far enough down in lightness to hold up in ink.
+const printPaper = Color('#ffffff');
+const printInkHex = '#111827';
+const printInk = Color(printInkHex);
+const printInkSoft = Color('#374151');
+const printRule = Color('#d1d5db');
+const printAccent = Color('#0f766e');
+const printAccentWarm = Color('#92400e');

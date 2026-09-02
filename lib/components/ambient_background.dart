@@ -155,5 +155,12 @@ class AmbientBackground extends StatelessComponent {
         raw: {'background-image': 'radial-gradient(ellipse at center, transparent 55%, rgba(7,8,12,0.75) 100%)'},
       ),
     ]),
+    // A near-black full-bleed backdrop is the single most expensive thing
+    // you can send to a printer, and it makes the print styles on /resume
+    // pointless besides. Drop it entirely rather than trusting the browser's
+    // "background graphics" checkbox to be off.
+    css.media(const MediaQuery.print(), [
+      css('.ambient-bg').styles(display: .none),
+    ]),
   ];
 }
