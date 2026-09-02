@@ -20,7 +20,8 @@ abstract final class Profile {
       'doing over \$1M a year at 4.8 stars. Alongside all of that I maintain $pubPackageCount '
       'packages on pub.dev — including two full backend frameworks, Revali and Zonai — '
       'downloaded ${compactCount(pubDownloads30Days)} times a month. Most of it exists because '
-      "some corner of the Dart ecosystem was missing it. If a tool gets in a developer's way, "
+      "some corner of the Dart ecosystem was missing it, and I've spoken about that work at three "
+      "Flutter conferences. If a tool gets in a developer's way, "
       "I'd rather fix the tool than work around it.";
 
   static const zeldaFact =

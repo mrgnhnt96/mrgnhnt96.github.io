@@ -118,4 +118,9 @@ final openSourceMetrics = <Metric>[
     label: 'backend frameworks',
     detail: 'Revali and Zonai — both published, both documented, both built end to end.',
   ),
+  const Metric(
+    value: '3',
+    label: 'conference talks',
+    detail: 'Spoken about Dart and Flutter at three conferences.',
+  ),
 ];
