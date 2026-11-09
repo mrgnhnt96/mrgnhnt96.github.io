@@ -102,7 +102,7 @@ class HomeState extends State<Home> {
       // Terminal mode only — human mode renders its own hero and a fuller
       // metrics grid, so showing the band there would just say it twice.
       if (_mode == TerminalMode.terminal) const MetricsBand(),
-      div(classes: 'home__stage', [
+      main_(classes: 'home__stage', [
         if (_mode == TerminalMode.terminal)
           div(key: const ValueKey('terminal-pane'), classes: paneClasses, [
             TerminalShell(onModeChange: _setMode),
@@ -178,6 +178,14 @@ class HomeState extends State<Home> {
     // whenever scripting isn't actually available.
     css.media(MediaQuery.raw('(scripting: none)'), [
       css('.home__pane').styles(opacity: 1, transform: .none),
+    ]),
+    // No entrance or ambient motion for visitors who ask for less. The
+    // terminal lines carry their animation inline, hence '!important'.
+    css.media(MediaQuery.raw('(prefers-reduced-motion: reduce)'), [
+      css('.home__pane, .term-line').styles(
+        raw: {'animation': 'none !important', 'opacity': '1', 'transform': 'none'},
+      ),
+      css('.ambient-bg__blob').styles(raw: {'animation': 'none !important'}),
     ]),
     // Give the terminal window as much of the screen as possible — the
     // margins that look intentional on desktop just read as wasted space

@@ -35,13 +35,10 @@ void main() {
       // to keep the focused input clear of the keyboard — which is what was
       // causing the whole page to "scroll" and reveal dead space on mobile.
       viewport: 'width=device-width, initial-scale=1.0, interactive-widget=resizes-content',
+      lang: 'en',
       meta: {
-        // The search-result snippet. Leads with the numbers for the same
-        // reason the page itself does — this is often the only line a
-        // recruiter reads before deciding whether to click.
-        'description':
-            'Staff Software Engineer. Architected a 1.3M-line Flutter app serving 25M+ users, leads a team '
-            'of 9, and maintains $pubPackageCount Dart packages with ${compactCount(pubDownloads30Days)} downloads a month.',
+        // The per-page `description` lives on each route in `app.dart`, so
+        // the résumé gets its own search snippet instead of the home page's.
         'theme-color': '#07080c',
       },
       head: [
@@ -49,6 +46,15 @@ void main() {
         link(rel: 'icon', href: '/favicon-32x32.png', type: 'image/png', attributes: {'sizes': '32x32'}),
         link(rel: 'icon', href: '/favicon-16x16.png', type: 'image/png', attributes: {'sizes': '16x16'}),
         link(rel: 'apple-touch-icon', href: '/apple-touch-icon.png', attributes: {'sizes': '180x180'}),
+
+        // Self-hosted rather than a Google Fonts `@import`: the import was a
+        // render-blocking chain of two extra origins before first paint. One
+        // variable file covers every weight the site uses (400-700).
+        link(
+          rel: 'preload',
+          href: monoFontUrl,
+          attributes: {'as': 'font', 'type': 'font/woff2', 'crossorigin': ''},
+        ),
 
         // Open Graph / Twitter card — controls how link previews render in
         // Messages, Slack, social apps, etc. Without og:image, previews fall
@@ -89,7 +95,7 @@ void main() {
         meta(attributes: {'name': 'twitter:image'}, content: 'https://mrgnhnt.com/og-image.png'),
       ],
       styles: [
-        css.import('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap'),
+        const _MonoFontFace(),
         css('html, body').styles(
           width: 100.percent,
           minHeight: 100.vh,
@@ -105,4 +111,19 @@ void main() {
       body: App(),
     ),
   );
+}
+
+/// `@font-face` for the self-hosted JetBrains Mono. Jaspr's own
+/// `css.fontFace` can't express `font-weight` ranges or `font-display`, both
+/// of which this needs: the range so 500 and 700 come from the one variable
+/// file, and `swap` so text paints in the fallback mono while it loads.
+class _MonoFontFace implements StyleRule {
+  const _MonoFontFace();
+
+  @override
+  String toCss([String indent = '']) =>
+      '$indent@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400 700; '
+      "font-display: swap; src: url($monoFontUrl) format('woff2'); "
+      'unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, '
+      'U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }';
 }
