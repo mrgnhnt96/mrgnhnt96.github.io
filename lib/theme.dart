@@ -26,6 +26,10 @@ const textDim = Color('#4b5468');
 
 const monoFont = FontFamily('JetBrains Mono');
 
+/// The self-hosted latin subset of JetBrains Mono (variable, 400-700), from
+/// Google Fonts v24. Versioned in the name so a new cut gets a new URL.
+const monoFontUrl = '/fonts/jetbrains-mono-latin-v24.woff2';
+
 const FontFamily fontStack = .list([monoFont, FontFamilies.monospace]);
 
 // -- Motion -----------------------------------------------------------------

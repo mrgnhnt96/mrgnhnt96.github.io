@@ -73,7 +73,7 @@ class HumanModeContent extends StatelessComponent {
           for (final app in shippedApps)
             article(classes: 'resume__card resume__app', [
               div(classes: 'resume__app-head', [
-                img(src: app.icon, alt: '${app.name} app icon', classes: 'resume__app-icon'),
+                img(src: app.icon, alt: '${app.name} app icon', width: 56, height: 56, classes: 'resume__app-icon'),
                 div(classes: 'resume__app-title', [
                   h3([.text(app.name)]),
                   span(classes: 'resume__app-store-name', [.text(app.storeName)]),
@@ -233,7 +233,9 @@ class HumanModeContent extends StatelessComponent {
         css('&').styles(
           display: .flex,
           margin: .only(top: 1.25.rem),
-          gap: Gap(column: 1.25.rem),
+          // Five links don't fit one row at phone width; wrap, don't overflow.
+          flexWrap: .wrap,
+          gap: Gap(row: 0.5.rem, column: 1.25.rem),
         ),
         css('a').styles(
           transition: Transition('color', duration: durFast),
@@ -571,9 +573,15 @@ class HumanModeContent extends StatelessComponent {
         css('&__core-skill').styles(backgroundColor: printPaper),
         css('&__core-skill-name').styles(color: printInk),
         css('&__core-skill-proof').styles(color: printAccent),
-        css('&__pill').styles(border: .all(color: printRule, width: 1.px), color: printInk),
+        css('&__pill').styles(
+          border: .all(color: printRule, width: 1.px),
+          color: printInk,
+        ),
         css('&__skill-label').styles(color: printInkSoft),
-        css('&__app').styles(border: .all(color: printRule, width: 1.px), raw: {'background-image': 'none'}),
+        css('&__app').styles(
+          border: .all(color: printRule, width: 1.px),
+          raw: {'background-image': 'none'},
+        ),
         css('&__app-store-name').styles(color: printInkSoft),
         css('&__store-link').styles(
           border: .all(color: printRule, width: 1.px),

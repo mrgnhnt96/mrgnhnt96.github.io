@@ -13,7 +13,7 @@ class ResumePage extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return div(classes: 'resume-page', [const AmbientBackground(), const HumanModeContent(standalone: true)]);
+    return main_(classes: 'resume-page', [const AmbientBackground(), const HumanModeContent(standalone: true)]);
   }
 
   @css

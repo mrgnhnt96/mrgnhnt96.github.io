@@ -19,8 +19,19 @@ class MetricsBand extends StatelessComponent {
   Component build(BuildContext context) {
     return header(classes: 'band', [
       div(classes: 'band__identity', [
-        span(classes: 'band__name', [.text(Profile.name)]),
+        h1(classes: 'band__name', [.text(Profile.name)]),
         span(classes: 'band__role', [.text('${Profile.role} · ${Profile.location}')]),
+        // The page's two real actions, as plain links: a visitor shouldn't
+        // have to type 'contact' or find the mode toggle to reach either.
+        nav(
+          classes: 'band__links',
+          attributes: {'aria-label': 'Contact and résumé'},
+          [
+            a(href: '/resume/', [.text('Résumé')]),
+            a(href: 'mailto:${Profile.email}', [.text('Email')]),
+            a(href: Profile.github, [.text('GitHub')]),
+          ],
+        ),
       ]),
       dl(classes: 'band__metrics', [
         for (final metric in headlineMetrics)
@@ -62,12 +73,30 @@ class MetricsBand extends StatelessComponent {
         gap: Gap(row: 0.2.rem),
       ),
       css('&__name').styles(
+        margin: .zero,
         color: textPrimary,
         fontSize: 1.05.rem,
         fontWeight: .bold,
         letterSpacing: 0.5.px,
       ),
       css('&__role').styles(color: textMuted, fontSize: 0.78.rem),
+      css('&__links', [
+        css('&').styles(
+          display: .flex,
+          margin: .only(top: 0.35.rem),
+          flexWrap: .wrap,
+          gap: Gap(column: 0.9.rem),
+          fontSize: 0.78.rem,
+        ),
+        css('a').styles(
+          color: accentCyan,
+          textDecoration: TextDecoration(line: .none),
+        ),
+        // Separate rules: a comma list inside a nested rule only scopes its
+        // first selector, which underlined every focused link on the page.
+        css('a:hover').styles(textDecoration: TextDecoration(line: .underline)),
+        css('a:focus-visible').styles(textDecoration: TextDecoration(line: .underline)),
+      ]),
       css('&__metrics').styles(
         display: .flex,
         margin: .zero,
@@ -98,9 +127,8 @@ class MetricsBand extends StatelessComponent {
     ]),
     // The band sits above a terminal that wants the whole screen on mobile,
     // so it gets meaningfully tighter rather than eating a third of the
-    // viewport. The identity block drops out entirely — 'whoami' is the
-    // first thing the terminal prints anyway, so it's pure duplication at
-    // exactly the width where space is scarcest.
+    // viewport. The identity block collapses to one row — the name and the
+    // links — since the terminal's first line already gives the role.
     css.media(MediaQuery.screen(maxWidth: 640.px), [
       css('.band').styles(
         padding: .symmetric(horizontal: 0.75.rem, vertical: 0.6.rem),
@@ -110,7 +138,17 @@ class MetricsBand extends StatelessComponent {
         margin: .only(top: 2.4.rem, bottom: 0.5.rem),
         radius: .all(.circular(10.px)),
       ),
-      css('.band__identity').styles(display: .none),
+      css('.band__identity').styles(
+        width: 100.percent,
+        flexDirection: .row,
+        flexWrap: .wrap,
+        justifyContent: .spaceBetween,
+        alignItems: .baseline,
+        gap: Gap(column: 0.75.rem),
+      ),
+      css('.band__name').styles(fontSize: 0.9.rem),
+      css('.band__role').styles(display: .none),
+      css('.band__links').styles(margin: .zero, fontSize: 0.72.rem),
       // A 2x2 grid rather than a wrapping flex row: 'minmax(0, 1fr)' lets
       // the columns shrink below their content width, so a long label like
       // 'PACKAGE DOWNLOADS' wraps inside its cell instead of pushing the

@@ -4,6 +4,7 @@ import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:universal_web/web.dart' as web;
 
+import '../../data/profile.dart';
 import '../../theme.dart';
 import 'command_registry.dart';
 import 'output_line.dart';
@@ -86,6 +87,10 @@ class TerminalShellState extends State<TerminalShell> {
     final lines = [
       p(classes: 'term-boot', [.text('Morgan Hunt — Staff Software Engineer')]),
       p(classes: 'term-boot', [.text('Dart & Flutter ecosystem tooling · Mesa, AZ')]),
+      // The summary boots with the terminal so it's in the server-rendered
+      // HTML: crawlers that don't run JS would otherwise see three lines and
+      // nothing about the work.
+      p([.text(Profile.summary)]),
       p(classes: 'term-boot', linkifyCommands("Type 'help' to look around — or just use the toggle up top.", actions)),
     ];
     for (var i = 0; i < lines.length; i++) {
@@ -281,6 +286,9 @@ class TerminalShellState extends State<TerminalShell> {
                 },
                 [.text('${suggestion.substring(_draft.length)} ⇥')],
               ),
+            // Enter already submits; this gives the form a real submit
+            // control for assistive tech without changing the look.
+            button(type: .submit, classes: 'visually-hidden', [.text('Run')]),
           ],
         ),
       ],
@@ -289,6 +297,16 @@ class TerminalShellState extends State<TerminalShell> {
 
   @css
   static List<StyleRule> get styles => [
+    css('.visually-hidden').styles(
+      position: .absolute(),
+      width: 1.px,
+      height: 1.px,
+      padding: .zero,
+      margin: .all(Unit.pixels(-1)),
+      overflow: .hidden,
+      border: .none,
+      raw: {'clip': 'rect(0 0 0 0)', 'white-space': 'nowrap'},
+    ),
     css('.terminal', [
       css('&').styles(
         display: .flex,
